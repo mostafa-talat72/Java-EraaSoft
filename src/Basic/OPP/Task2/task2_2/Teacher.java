@@ -8,7 +8,7 @@ public class Teacher {
 
     public static void main(String[] args) {
         Scanner input= new Scanner(System.in);
-        Teacher teacher1 = new Teacher(1L, "Mostafa Talat", 30, "+20111390660", 2500);
+        Teacher teacher1 = new Teacher(1L, "Mostafa Talat", 30, "+30111390660", 2500);
         teacher1.displayInfo();
     }
 
@@ -93,7 +93,7 @@ public class Teacher {
     }
     private boolean isValidPhoneNumber(String phoneNumber) {
         if(phoneNumber.length() < 3 || !phoneNumber.startsWith("+20") || !phoneNumber.substring(3).matches("\\d{9}"))
-            throw new IllegalArgumentException("Invalid teacher phone number, phone number should be 13 characters and should start with +20 followed by 9 digits.");
+            throw new IllegalArgumentException("Invalid teacher phone number, phone number should be 12 characters and should start with +20 followed by 9 digits.");
         return true;
 
     }
