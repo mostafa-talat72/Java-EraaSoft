@@ -15,7 +15,7 @@ public class Teacher {
     private Long id; // id > 0
     private String name; // size >=3 and all digits char(a-z)
     private float age; // age >= 25 and age <= 60
-    private String phoneNumber; //  +20111390660 13 cher and start with +20
+    private String phoneNumber; //  +20111390660 12 cher and start with +20
     private float salary;  // salary >= 3000
 
     public Teacher(Long id, String name, float age, String phoneNumber, float salary) {
