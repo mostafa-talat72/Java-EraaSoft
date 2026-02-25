@@ -8,7 +8,7 @@ public class Teacher {
 
     public static void main(String[] args) {
         Scanner input= new Scanner(System.in);
-        Teacher teacher1 = new Teacher(1L, "Mostafa Talat", 30, "+30111390660", 2500);
+        Teacher teacher1 = new Teacher(1L, "Mostafa Talat", 30, "+201113h660", 2500);
         teacher1.displayInfo();
     }
 
