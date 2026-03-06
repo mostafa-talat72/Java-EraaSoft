@@ -1,4 +1,4 @@
-package Basic.OPP.TaskCodeforcesSheetAssiutFromFtoO;
+package Basic.OPP.TaskCodeforcesSheet1AssiutFromFtoO;
 
 public class Char {
 

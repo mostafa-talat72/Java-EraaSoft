@@ -1,4 +1,4 @@
-package Basic.OPP.TaskCodeforcesSheetAssiutFromFtoO;
+package Basic.OPP.TaskCodeforcesSheet1AssiutFromFtoO;
 
 import java.util.Scanner;
 
