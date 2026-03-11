@@ -1,4 +1,4 @@
-package Basic.OPP.TaskCodeforcesSheet2AssiutADEGIKMNOQRWZ;
+package Basic.OPP.TaskCodeforcesSheet2LoopsAssiut;
 
 import java.util.*;
 
