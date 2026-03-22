@@ -1,17 +1,16 @@
 
+import Basic.OPP.Task10.AddStudentService;
+import Basic.OPP.Task10.School;
+import Basic.OPP.Task8.Facebook;
+import Basic.OPP.Task8.PostService;
+
 import java.util.*;
 
 import static java.util.Collections.swap;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-
-        int n = input.nextInt(),out = 0;
-        while(n-- > 0) {
-            int a = input.nextInt(), b = input.nextInt();
-            out += (b - a >= 2) ? 1 : 0;
-        }
-        System.out.println(out);
+        School school = new AddStudentService();
+        school.addStudent();
     }
 }
