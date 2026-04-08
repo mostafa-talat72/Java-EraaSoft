@@ -1,0 +1,2 @@
+What happens if you override equals() but NOT hashCode()?
+اللى هيحصل لو انا استخدمت اى Collection بيعتمد انو بيعمل hashing هتحصل اخطاء لانو المقارنات وقتها هتختلف
