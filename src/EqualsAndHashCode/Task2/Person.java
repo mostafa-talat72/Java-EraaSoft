@@ -6,8 +6,10 @@ import java.util.Objects;
 public class Person {
 
     public static void main(String[] args) {
+        // Create a HashSet to store Person objects
         HashSet<Person> hashSet = new HashSet<>();
 
+        // Create multiple Person objects with some duplicate ids
         Person p1 = new Person(); p1.setId(1); p1.setName("Ahmed");
         Person p2 = new Person(); p2.setId(1); p2.setName("Ali");      // same id as p1
         Person p3 = new Person(); p3.setId(2); p3.setName("Sara");
@@ -19,6 +21,7 @@ public class Person {
         Person p9 = new Person(); p9.setId(6); p9.setName("Salma");
         Person p10 = new Person(); p10.setId(7); p10.setName("Khaled");
 
+        // Add all Person objects to the HashSet
         hashSet.add(p1);
         hashSet.add(p2);
         hashSet.add(p3);
@@ -30,44 +33,57 @@ public class Person {
         hashSet.add(p9);
         hashSet.add(p10);
 
+        // Print all Person objects in the HashSet
         for (Person p : hashSet) {
             System.out.println("Id: " + p.getId() + ", Name: " + p.getName());
         }
     }
 
+    // Fields for Person class
     private int id;
     private String name;
 
+    // Getter and Setter for id
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
 
+    // Getter and Setter for name
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
 
+    // Override equals() method to compare Person objects by id
     @Override
     public boolean equals(Object obj) {
-        if(!obj.getClass().equals(this.getClass()))
+        // Check if the object is of the same class
+        if (!obj.getClass().equals(this.getClass()))
             throw new IllegalArgumentException("The object must be a Person");
+
+        // Cast the object to Person
         Person person = (Person) obj;
+
+        // Compare based on id field
         return this.getId() == person.getId();
-//        return this.getName() == person.getName();
-//        return this.getId() == person.getId() && this.getName() == person.getName();
+
+        // Alternative comparisons (commented out):
+        // return this.getName() == person.getName();
+        // return this.getId() == person.getId() && this.getName() == person.getName();
     }
 
+    // Override hashCode() method to generate hash based on id
     @Override
     public int hashCode() {
-        return  Objects.hash(this.getId());
-//        return Objects.hash(this.getName());
-//        return Objects.hash(this.getId(), this.getName());
+        return Objects.hash(this.getId());
+
+        // Alternative hashCode implementations (commented out):
+        // return Objects.hash(this.getName());
+        // return Objects.hash(this.getId(), this.getName());
     }
 }
