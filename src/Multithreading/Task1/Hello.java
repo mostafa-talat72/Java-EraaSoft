@@ -1,13 +1,17 @@
 package Multithreading.Task1;
 
-public class Hello extends Thread{
+// Hello class extends Thread to create a new thread
+public class Hello extends Thread {
 
-    public void print(){
+    // Simple method to print a message
+    public void print() {
         System.out.println("Hello from thread");
     }
 
+    // The run() method is executed when start() is called
     @Override
     public void run() {
+        // Call the print() method inside the thread
         print();
     }
 }
