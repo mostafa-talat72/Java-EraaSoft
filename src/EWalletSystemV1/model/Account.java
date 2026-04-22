@@ -1,4 +1,4 @@
-package EwalletSystem.model;
+package EWalletSystemV1.model;
 
 public class Account {
     private String userName;

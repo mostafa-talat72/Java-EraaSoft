@@ -1,4 +1,4 @@
-package EwalletSystem.model;
+package EWalletSystemV1.model;
 
 import java.util.ArrayList;
 import java.util.List;
