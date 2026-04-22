@@ -13,11 +13,16 @@ public class Account {
 
 
     public Account(String userName, String password, String phoneNumber, float age) {
-        this.userName = userName;
-        this.password = password;
-        this.balance = 0.0;
-        this.phoneNumber = phoneNumber;
-        this.age = age;
+        this.setUserName(userName);
+        this.setPassword(password);
+        this.setBalance(0.0);
+        this.setPhoneNumber(phoneNumber);
+        this.setAge(age);
+    }
+
+    public Account(String userName, String password) {
+        this.setUserName(userName);
+        this.setPassword(password);
     }
 
     public String getUserName() {
