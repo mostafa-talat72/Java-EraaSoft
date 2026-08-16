@@ -1,13 +1,12 @@
 package com.lec2.task1.javaNoXmlTask1;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class Main {
 	public static void main(String[] args) {
 	
-		ClassPathXmlApplicationContext applicationContext = 
-				new ClassPathXmlApplicationContext("applicationContext.xml");
+		AnnotationConfigApplicationContext applicationContext = 
+				new AnnotationConfigApplicationContext(SpringConfig.class);
 
 
 		UserService personService = applicationContext.getBean("personService", PersonService.class);

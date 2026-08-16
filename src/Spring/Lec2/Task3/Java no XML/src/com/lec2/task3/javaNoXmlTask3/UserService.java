@@ -1,4 +1,4 @@
-package com.lec2.task3.javaNoXmlTask2;
+package com.lec2.task3.javaNoXmlTask3;
 
 public interface UserService {
 

@@ -1,18 +1,20 @@
 package com.lec2.task2.javaNoXmlTask2;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import com.lec2.task2.javaNoXmlTask2.SpringConfig;
 
 
 public class Main {
 	public static void main(String[] args) {
 		
-		ClassPathXmlApplicationContext applicationContext = 
-				new ClassPathXmlApplicationContext("applicationContext.xml");
+		AnnotationConfigApplicationContext applicationContext = 
+				new AnnotationConfigApplicationContext(SpringConfig.class);
 
-		AccountServiceImpl accountServiceImpl = applicationContext.getBean("accountServiceImpl", AccountServiceImpl.class);
+
+		AccountService accountService= applicationContext.getBean("accountServiceImpl", AccountService.class);
 		
-		accountServiceImpl.save("Mostafa");
-		accountServiceImpl.update("Ahmed");
+		accountService.getSavePerson("Mostafa");
 
 		
 	}

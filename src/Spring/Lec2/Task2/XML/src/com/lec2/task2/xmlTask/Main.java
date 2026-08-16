@@ -9,11 +9,9 @@ public class Main {
 		ClassPathXmlApplicationContext applicationContext = 
 				new ClassPathXmlApplicationContext("applicationContext.xml");
 
-		AccountServiceImpl accountServiceImpl = applicationContext.getBean("accountServiceImpl", AccountServiceImpl.class);
+		AccountService accountService = applicationContext.getBean("accountServiceImpl", AccountServiceImpl.class);
 		
-		accountServiceImpl.save("Mostafa");
-		accountServiceImpl.update("Ahmed");
+		accountService.getSavePerson("Mostafa");
 
-		
 	}
 }
