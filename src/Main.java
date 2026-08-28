@@ -27,33 +27,20 @@ public class Main {
             System.out.println();
         }
     }
-    public int hIndex(int[] citations) {
-        Arrays.sort(citations);
-        int l = 0, r = citations.length, mid = 0, out = 0;
-        while(l<=r){
-            mid=(l+r) / 2;
-            System.out.println("mid = " + mid);
-            int lowBound = lower_bound(citations, mid);
-            if(citations.length -  lowBound >= mid ){
-                l = mid+1;
-                out = Math.max(out, mid);
-            }else
-                r=mid-1;
+    public int[] productExceptSelf(int[] nums) {
+        int[] answer = new int[nums.length];
+        Arrays.fill(answer, 1);
+        int product = 1;
+        for(int i=nums.length - 1;i>=0;i--){
+            answer[i] = product;
+            product *= nums[i];
         }
-        return out;
-    }
-    public int lower_bound(int[] citations, int num){
-        int l = 0, r = citations.length, mid = 0, out = citations.length;
-        while(l<r){
-            mid=(l+r) / 2;
-            if(citations[mid] >= num){
-                r=mid-1;
-                out = mid;
-            }else
-                l = mid+1;
+        product = nums[0];
+        for(int i=1;i<nums.length;i++){
+            answer[i] = answer[i] * product;
+            product *= nums[i];
         }
-        System.out.println("num = " + out);
-        return out;
+        return answer;
     }
 }
 class RandomizedSet {
