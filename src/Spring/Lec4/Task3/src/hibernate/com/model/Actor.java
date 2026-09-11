@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 public class Actor {
@@ -21,7 +22,10 @@ public class Actor {
 	@JoinTable(
 				name = "actor_movie",
 				joinColumns = @JoinColumn(name = "actor_id"),
-				inverseJoinColumns = @JoinColumn(name = "movie_id")
+				inverseJoinColumns = @JoinColumn(name = "movie_id"),
+				uniqueConstraints = @UniqueConstraint(
+							columnNames = { "actor_id", "movie_id"}
+						)
 			)
 	private List<Movie> movies;
 }

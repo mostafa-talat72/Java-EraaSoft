@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 public class Course {
@@ -21,7 +22,10 @@ public class Course {
 	@JoinTable(
 				name = "course_student",
 				joinColumns = @JoinColumn(name = "course_id"),
-				inverseJoinColumns = @JoinColumn(name = "student_id")
+				inverseJoinColumns = @JoinColumn(name = "student_id"),
+				uniqueConstraints = @UniqueConstraint(
+							columnNames = {"course_id", "student_id"}
+						)
 			)
 	private List<Student> students;
 }

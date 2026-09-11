@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 public class Patient {
@@ -21,7 +22,10 @@ public class Patient {
 	@JoinTable(
 				name = "patient_doctor",
 				joinColumns = @JoinColumn(name = "patient_id"),
-				inverseJoinColumns = @JoinColumn(name = "doctor_id")
+				inverseJoinColumns = @JoinColumn(name = "doctor_id"),
+				uniqueConstraints = @UniqueConstraint(
+							columnNames = {"patient_doctor", "doctor_id"}
+						)
 			)
 	private List<Doctor> doctors;
 }

@@ -10,6 +10,7 @@ public class Passport {
 	private long id;
 	
 	@OneToOne
+	@JoinColumn(unique = true, nullable = false)
 	private Student student;
 	
 }

@@ -18,6 +18,7 @@ public class DoctorDetails {
 	private int age;
 
 	@OneToOne
+	@JoinColumn(unique = true, nullable = false)
 	private Doctor doctor;
 
 }

@@ -24,7 +24,10 @@ public class Hospital {
 	@JoinTable(
 				name = "hospital_patient",
 				joinColumns = @JoinColumn(name = "hospital_id"),
-				inverseJoinColumns = @JoinColumn(name = "patient_id")
+				inverseJoinColumns = @JoinColumn(name = "patient_id"),
+				uniqueConstraints = @UniqueConstraint(
+							columnNames = {"hospital_id", "patient_id"}
+						)
 			)
 	private List<Patient> patients;
 	

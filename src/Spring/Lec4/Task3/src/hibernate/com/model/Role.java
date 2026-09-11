@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 public class Role {
@@ -21,7 +22,10 @@ public class Role {
 	@JoinTable(
 				name = "role_user",
 				joinColumns = @JoinColumn(name = "role_id"),
-				inverseJoinColumns = @JoinColumn(name = "user_id")
+				inverseJoinColumns = @JoinColumn(name = "user_id"),
+				uniqueConstraints = @UniqueConstraint(
+							columnNames = {"role_id", "user_id"}
+						)
 			)
 	private List<User> users;
 }
