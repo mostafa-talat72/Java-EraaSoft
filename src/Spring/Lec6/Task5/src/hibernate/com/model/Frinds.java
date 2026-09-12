@@ -13,13 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.UniqueConstraint;
 
 @Entity
-public class Frinds {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	private long id;
-	
-	private String name;
+public class Frinds extends InhertanceData{
 	
 	@ManyToMany(cascade = CascadeType.PERSIST)
 	@JoinTable(
@@ -34,34 +28,22 @@ public class Frinds {
 
 	public Frinds() {};
 	public Frinds(String name) {
-		this.name = name;
+		super(name);
 	} 
+	public Frinds(long id, String name) {
+		super(id,name);
+	} 
+	
 	public Frinds(String name, List<User> users) {
-		this.name = name;
+		this(name);
 		this.users = users;
 	} 
+	
 	public Frinds(long id, String name, List<User> users) {
-		this.id = id;
-		this.name = name;
+		this(id,name);
 		this.users = users;
 	}
 	
-	public Frinds(long id, String name) {
-		this.id = id;
-		this.name = name;
-	} 
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
 	public List<User> getUsers() {
 		return users;
 	}
@@ -70,7 +52,7 @@ public class Frinds {
 	}
 	@Override
 	public String toString() {
-		return "Frinds [id=" + id + ", name=" + name + ", users=" + users + "]";
+		return "Frinds [id=" + this.getId() + ", name=" + this.getName() + ", users=" + users + "]";
 	} 
 	
 	

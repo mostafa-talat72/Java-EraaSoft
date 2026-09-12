@@ -11,7 +11,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 @Entity(name = "Users")
-public class User extends Frinds {
+public class User extends InhertanceData {
 
 	private int age;
 	
