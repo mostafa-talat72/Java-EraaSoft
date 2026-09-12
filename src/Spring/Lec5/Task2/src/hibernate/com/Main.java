@@ -26,8 +26,9 @@ public class Main {
     	Session session = sessionFactory.getCurrentSession();
     	   	
     	
-    	Transaction transaction = session.beginTransaction();
-    	    	
+    	Transaction transaction = session.getTransaction();
+    	transaction.begin();
+    	
     	List<Model1> model1s = Arrays.asList(
     		    new Model1("Model1-1"),
     		    new Model1("Model1-2"),

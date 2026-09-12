@@ -25,8 +25,8 @@ public class Main {
     	
     	Session session = sessionFactory.getCurrentSession();
     	
-    	Transaction transaction = session.beginTransaction();
-    	
+    	Transaction transaction = session.getTransaction();
+    	transaction.begin();    	
     	
     	
     	transaction.commit();

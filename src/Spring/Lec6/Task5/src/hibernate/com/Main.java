@@ -27,12 +27,35 @@ public class Main {
     	SessionFactory sessionFactory = configuration.buildSessionFactory();
     	
     	Session session = sessionFactory.getCurrentSession();
-    	   	
     	
     	Transaction transaction = session.getTransaction();
-    	transaction.begin();    	    	
+    	transaction.begin();
     	
+    	User user1 = new User("Ahmed", 25);
+    	User user2 = new User("Mostafa", 26);
+
+    	UserDetails userDetails1 = new UserDetails("Cairo", "01012345678");
+    	UserDetails userDetails2 = new UserDetails("Assiut", "01012356889");
+
+    	Frinds friend = new Frinds("Mohamed");
+    	Post post1 = new Post("Hello first", "This is my first post");
+    	Post post2 = new Post("Hello second", "This is my second post");
+
+    	userDetails1.setUser(user1);
+    	userDetails2.setUser(user2);
+
+    	session.persist(userDetails1);
+    	session.persist(userDetails2);
     	
+    	friend.setUsers(Arrays.asList(user1,user2));
+    	
+    	session.persist(friend);
+    	
+    	post1.setUser(user1);
+    	post2.setUser(user1);
+
+    	session.persist(post1);
+    	session.persist(post2);
     	transaction.commit();
     	
     	session.close();

@@ -23,8 +23,9 @@ public class Main {
         Session session = sessionFactory.getCurrentSession();
 
         // Start a Transaction
-        Transaction transaction = session.beginTransaction();
-
+        Transaction transaction = session.getTransaction();
+    	transaction.begin();
+    	
         // Create a new Player object
         Player player = new Player("Mostafa", 10, true);
 
