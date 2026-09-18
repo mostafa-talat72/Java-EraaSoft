@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add List - Employees</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <h1>Add Multiple Employees</h1>
+    <p class="hint">Add rows, fill data, and submit once. Empty rows are ignored. All rows go to <code>POST /employees/list</code> via RestTemplate.</p>
+
+    <form th:object="${bulkForm}" th:action="@{/web/employees/add-list}" method="post" class="form" id="add-list-form">
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert-error">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">Global error</p>
+        </div>
+        <div id="rows-container">
+            <div th:each="emp, stat : *{employees}" class="list-row">
+                <div class="row-header">
+                    <h3 th:text="'Employee #' + ${stat.index + 1}">Employee #1</h3>
+                    <button type="button" class="btn btn-delete btn-sm remove-row-btn">Remove</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" th:field="*{employees[__${stat.index}__].name}" placeholder="Name"
+                               th:classappend="${#fields.hasErrors('employees[__${stat.index}__].name')} ? 'input-error' : ''">
+                        <span th:if="${#fields.hasErrors('employees[__${stat.index}__].name')}"
+                              th:errors="*{employees[__${stat.index}__].name}" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" th:field="*{employees[__${stat.index}__].age}" placeholder="Age"
+                               th:classappend="${#fields.hasErrors('employees[__${stat.index}__].age')} ? 'input-error' : ''">
+                        <span th:if="${#fields.hasErrors('employees[__${stat.index}__].age')}"
+                              th:errors="*{employees[__${stat.index}__].age}" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" th:field="*{employees[__${stat.index}__].phoneNumber}" placeholder="01012345678"
+                               th:classappend="${#fields.hasErrors('employees[__${stat.index}__].phoneNumber')} ? 'input-error' : ''">
+                        <span th:if="${#fields.hasErrors('employees[__${stat.index}__].phoneNumber')}"
+                              th:errors="*{employees[__${stat.index}__].phoneNumber}" class="error"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" id="add-row-btn" class="btn">+ Add Row</button>
+            <button type="submit" class="btn btn-primary">Save All</button>
+            <a th:href="@{/web/employees}" class="btn">Cancel</a>
+        </div>
+    </form>
+
+    <!-- Hidden template for JS to clone -->
+    <template id="row-template">
+        <div class="list-row">
+            <div class="row-header">
+                <h3>Employee #__NUM__</h3>
+                <button type="button" class="btn btn-delete btn-sm remove-row-btn">Remove</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="employees[__IDX__].name" placeholder="Name">
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" name="employees[__IDX__].age" placeholder="Age">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" name="employees[__IDX__].phoneNumber" placeholder="01012345678">
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+<script th:src="@{/js/add-list.js}"></script>
+</body>
+</html>

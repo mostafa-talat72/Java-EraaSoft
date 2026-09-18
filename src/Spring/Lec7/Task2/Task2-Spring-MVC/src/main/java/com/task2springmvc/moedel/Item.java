@@ -1,17 +1,17 @@
 package com.task2springmvc.moedel;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 @Entity
+
 public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    private Long id;
 
+    @NotBlank(message = "Name is required")
+    @Column(nullable = false)
     private String name;
 
     public Item() {}
@@ -19,16 +19,16 @@ public class Item {
     public Item(String name) {
         this.name = name;
     }
-    public Item(long id, String name) {
+    public Item(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

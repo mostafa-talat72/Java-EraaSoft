@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${player.id == null} ? 'Add Player' : 'Edit Player'">Player Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <h1 th:text="${player.id == null} ? 'Add New Player' : 'Edit Player #' + ${player.id}">Player Form</h1>
+
+    <!--
+        Server-side form (no fetch). Flow:
+        - ADD  (id == null): POST /web/players -> controller POSTs to REST POST /players
+        - EDIT (id != null): POST /web/players/{id} + hidden _method=PUT
+                             -> controller PUTs to REST PUT /players/{id}
+        Validation errors from REST (JSON) are mapped to BindingResult,
+        so th:errors displays them here.
+    -->
+    <form th:object="${player}"
+          th:action="${player.id == null} ? @{/web/players} : @{/web/players/{id}(id=${player.id})}"
+          method="post"
+          class="form">
+
+        <!-- Only in EDIT mode: fake PUT -->
+        <input th:if="${player.id != null}"
+               type="hidden"
+               name="_method"
+               value="PUT">
+
+        <!-- Global errors (business errors from REST, e.g. {"error": "..."}) -->
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert-error">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">Global error</p>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" th:field="*{name}" placeholder="Player name"
+                   th:classappend="${#fields.hasErrors('name')} ? 'input-error' : ''">
+            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="number">Number</label>
+            <input type="number" id="number" th:field="*{number}" placeholder="Shirt number"
+                   th:classappend="${#fields.hasErrors('number')} ? 'input-error' : ''">
+            <span th:if="${#fields.hasErrors('number')}" th:errors="*{number}" class="error"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="salary">Salary</label>
+            <input type="number" id="salary" th:field="*{salary}" step="0.01" placeholder="Salary"
+                   th:classappend="${#fields.hasErrors('salary')} ? 'input-error' : ''">
+            <span th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}" class="error"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"
+                    th:text="${player.id == null} ? 'Save' : 'Update'">Save</button>
+            <a th:href="@{/web/players}" class="btn">Cancel</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

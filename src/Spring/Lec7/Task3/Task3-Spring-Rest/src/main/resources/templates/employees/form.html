@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${employee.id == null} ? 'Add Employee' : 'Edit Employee'">Employee Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <h1 th:text="${employee.id == null} ? 'Add New Employee' : 'Edit Employee #' + ${employee.id}">Employee Form</h1>
+
+    <!--
+        Same template for ADD + EDIT (server-side, no fetch):
+        - ADD  (id == null): POST /web/employees -> controller POSTs to REST POST /employees
+        - EDIT (id != null): POST /web/employees/{id} + _method=PUT -> controller PUTs to REST PUT /employees
+    -->
+    <form th:object="${employee}"
+          th:action="${employee.id == null} ? @{/web/employees} : @{/web/employees/{id}(id=${employee.id})}"
+          method="post" class="form">
+
+        <input th:if="${employee.id != null}" type="hidden" name="_method" value="PUT">
+
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert-error">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">Global error</p>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" th:field="*{name}" placeholder="Employee name"
+                   th:classappend="${#fields.hasErrors('name')} ? 'input-error' : ''">
+            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" id="age" th:field="*{age}" placeholder="Age"
+                   th:classappend="${#fields.hasErrors('age')} ? 'input-error' : ''">
+            <span th:if="${#fields.hasErrors('age')}" th:errors="*{age}" class="error"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number</label>
+            <input type="text" id="phoneNumber" th:field="*{phoneNumber}" placeholder="01012345678"
+                   th:classappend="${#fields.hasErrors('phoneNumber')} ? 'input-error' : ''">
+            <span th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="error"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" th:text="${employee.id == null} ? 'Save' : 'Update'">Save</button>
+            <a th:href="@{/web/employees}" class="btn">Cancel</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

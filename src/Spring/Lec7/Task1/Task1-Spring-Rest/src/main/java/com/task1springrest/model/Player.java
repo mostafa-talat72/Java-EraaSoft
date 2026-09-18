@@ -1,6 +1,10 @@
 package com.task1springrest.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,12 +21,17 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(unique = true)
+    @NotBlank(message = "Name is required")
+    @Column(unique = true, nullable = true)
     private String name;
 
+    @Positive(message = "Number must be positive")
+    @NotNull(message = "Number is required")
     @Column(name = "plyer_number")
     private Integer number;
 
+    @NotNull(message = "Salary is required")
+    @PositiveOrZero(message = "Salary must be >= 0")
     private Double salary;
 
     public Player(String name, Integer number, Double salary) {

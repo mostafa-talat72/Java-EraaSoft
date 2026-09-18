@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Search: ' + ${searchName}">Search Results</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <h1>Search Results for "<span th:text="${searchName}">ahmed</span>"</h1>
+    <a th:href="@{/web/employees}" class="btn">Back to List</a>
+
+    <div th:if="${loadError}" class="alert-error" th:text="${loadError}"></div>
+
+    <h2>1) Derived Query (findByNameLike)</h2>
+    <p th:if="${#lists.isEmpty(derived)}" class="empty">No results.</p>
+    <table th:unless="${#lists.isEmpty(derived)}" class="table">
+        <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Phone</th></tr></thead>
+        <tbody><tr th:each="e : ${derived}"><td th:text="${e.id}"></td><td th:text="${e.name}"></td><td th:text="${e.age}"></td><td th:text="${e.phoneNumber}"></td></tr></tbody>
+    </table>
+
+    <h2>2) Native Query</h2>
+    <p th:if="${#lists.isEmpty(nativeQ)}" class="empty">No results.</p>
+    <table th:unless="${#lists.isEmpty(nativeQ)}" class="table">
+        <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Phone</th></tr></thead>
+        <tbody><tr th:each="e : ${nativeQ}"><td th:text="${e.id}"></td><td th:text="${e.name}"></td><td th:text="${e.age}"></td><td th:text="${e.phoneNumber}"></td></tr></tbody>
+    </table>
+
+    <h2>3) JPQL Query</h2>
+    <p th:if="${#lists.isEmpty(jpql)}" class="empty">No results.</p>
+    <table th:unless="${#lists.isEmpty(jpql)}" class="table">
+        <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Phone</th></tr></thead>
+        <tbody><tr th:each="e : ${jpql}"><td th:text="${e.id}"></td><td th:text="${e.name}"></td><td th:text="${e.age}"></td><td th:text="${e.phoneNumber}"></td></tr></tbody>
+    </table>
+</div>
+</body>
+</html>

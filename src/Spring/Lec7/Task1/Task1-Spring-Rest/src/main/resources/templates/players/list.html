@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Players List</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <h1>Players</h1>
+
+    <a th:href="@{/web/players/new}" class="btn btn-primary">+ Add New Player</a>
+
+    <!-- Error when REST API (GET /players) fails -->
+    <div th:if="${loadError}" class="alert-error" th:text="${loadError}"></div>
+
+    <p th:if="${#lists.isEmpty(players)}" class="empty">No players found.</p>
+
+    <table th:unless="${#lists.isEmpty(players)}" class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Number</th>
+            <th>Salary</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="player : ${players}">
+            <td th:text="${player.id}">1</td>
+            <td th:text="${player.name}">Messi</td>
+            <td th:text="${player.number}">10</td>
+            <td th:text="${player.salary}">100000.0</td>
+            <td class="actions">
+                <!-- View: GET /web/players/{id} (controller fetches GET /players/{id} via RestTemplate) -->
+                <a th:href="@{/web/players/{id}(id=${player.id})}" class="btn btn-view">View</a>
+
+                <!-- Edit: GET /web/players/edit/{id} (controller fetches GET /players/{id} via RestTemplate) -->
+                <a th:href="@{/web/players/edit/{id}(id=${player.id})}" class="btn btn-edit">Edit</a>
+
+                <!-- Delete: POST + hidden _method=DELETE
+                     HiddenHttpMethodFilter converts it to DELETE /web/players/{id},
+                     then controller calls DELETE /players/{id} via RestTemplate -->
+                <form th:action="@{/web/players/{id}(id=${player.id})}"
+                      method="post"
+                      class="inline-form delete-form">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-delete">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Site confirm modal (replaces browser confirm) -->
+<div id="confirm-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <h3>Confirm Delete</h3>
+        <p id="confirm-message" class="modal-message">Are you sure?</p>
+        <div class="modal-actions">
+            <button id="confirm-yes" class="btn btn-delete">Delete</button>
+            <button id="confirm-no" class="btn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

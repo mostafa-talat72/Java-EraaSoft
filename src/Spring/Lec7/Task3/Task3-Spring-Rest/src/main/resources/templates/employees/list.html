@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employees List</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <h1>Employees</h1>
+
+    <!-- Top actions -->
+    <div class="toolbar">
+        <a th:href="@{/web/employees/new}" class="btn btn-primary">+ Add Employee</a>
+        <a th:href="@{/web/employees/add-list}" class="btn btn-primary">+ Add List</a>
+    </div>
+
+    <!-- Search by name (calls GET /employees/search/{name} via RestTemplate) -->
+    <form th:action="@{/web/employees/search}" method="get" class="inline-search">
+        <input type="text" name="name" placeholder="Search by name..." th:value="${searchName}">
+        <button type="submit" class="btn btn-view">Search</button>
+        <a th:href="@{/web/employees}" class="btn" th:if="${searchName != null || filterInfo != null}">Clear</a>
+    </form>
+
+    <!-- Filter by IDs (calls GET /employees/byIds?ids=...) -->
+    <form th:action="@{/web/employees/byIds}" method="get" class="inline-search">
+        <input type="text" name="ids" placeholder="Filter by IDs e.g. 1,2,3">
+        <button type="submit" class="btn">By IDs</button>
+    </form>
+
+    <div th:if="${loadError}" class="alert-error" th:text="${loadError}"></div>
+    <div th:if="${filterInfo}" class="alert-info" th:text="${filterInfo}"></div>
+
+    <p th:if="${#lists.isEmpty(employees)}" class="empty">No employees found.</p>
+
+    <!-- Bulk actions for selected rows -->
+    <div th:unless="${#lists.isEmpty(employees)}" class="toolbar" id="bulk-toolbar" style="margin-top: 10px;">
+        <button type="button" id="btn-edit-selected" class="btn btn-edit">Edit Selected</button>
+        <button type="button" id="btn-delete-selected" class="btn btn-delete">Delete Selected</button>
+        <span class="hint" style="margin-left: 8px;">Select checkboxes, then choose action</span>
+    </div>
+
+    <table th:unless="${#lists.isEmpty(employees)}" class="table">
+        <thead>
+        <tr>
+            <th><input type="checkbox" id="select-all"></th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="emp : ${employees}">
+            <td><input type="checkbox" class="row-check" th:value="${emp.id}"></td>
+            <td th:text="${emp.id}">1</td>
+            <td th:text="${emp.name}">Ahmed</td>
+            <td th:text="${emp.age}">25</td>
+            <td th:text="${emp.phoneNumber}">01012345678</td>
+            <td class="actions">
+                <a th:href="@{/web/employees/{id}(id=${emp.id})}" class="btn btn-view">View</a>
+                <a th:href="@{/web/employees/edit/{id}(id=${emp.id})}" class="btn btn-edit">Edit</a>
+                <form th:action="@{/web/employees/{id}(id=${emp.id})}" method="post" class="inline-form delete-form">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-delete">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Hidden forms for bulk actions (PUT/DELETE via _method) -->
+    <form id="bulk-delete-form" th:action="@{/web/employees/delete/list}" method="post" style="display:none;">
+        <input type="hidden" name="_method" value="DELETE">
+        <input type="hidden" name="ids" id="bulk-delete-ids">
+    </form>
+
+    <!-- Delete all (calls DELETE /employees) -->
+    <form th:action="@{/web/employees}" method="post" class="inline-search delete-form" style="margin-top: 14px;" data-confirm="Are you sure you want to delete ALL employees? This will call DELETE /employees via RestTemplate.">
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit" class="btn btn-delete">Delete All</button>
+    </form>
+</div>
+
+<!-- Site confirm modal (replaces browser confirm) for all deletes -->
+<div id="confirm-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <h3>Confirm Delete</h3>
+        <p id="confirm-message" class="modal-message">Are you sure?</p>
+        <div class="modal-actions">
+            <button id="confirm-yes" class="btn btn-delete">Delete</button>
+            <button id="confirm-no" class="btn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Info modal (replaces browser alert for 'select at least one') -->
+<div id="info-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <h3>Notice</h3>
+        <p id="info-message" class="modal-message"></p>
+        <div class="modal-actions">
+            <button id="info-ok" class="btn btn-primary">OK</button>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/list-bulk.js}"></script>
+</body>
+</html>

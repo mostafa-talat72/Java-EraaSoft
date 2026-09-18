@@ -3,6 +3,7 @@ package com.task3springrest.controller;
 import com.task3springrest.model.Employee;
 import com.task3springrest.service.EmployeeService;
 import jakarta.transaction.SystemException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,13 +39,24 @@ public class EmployeeController {
         return employeeService.getEmployeesByIds(ids);
     }
 
+    // Get one employee by ID (used by Thymeleaf profile page via RestTemplate)
+    // GET localhost:8085/employees/{id}  (numeric only to avoid clash with /byIds and /search)
+    @GetMapping("/{id:\\d+}")
+    public Employee getEmployeeById(@PathVariable long id) throws SystemException {
+        List<Employee> list = employeeService.getEmployeesByIds(List.of(id));
+        if (list.isEmpty()) {
+            throw new SystemException("Employee not found with ID: " + id);
+        }
+        return list.get(0);
+    }
+
 
     // ==================== POST ====================
 
     // Add one employee
     // POST localhost:8085/employees
     @PostMapping
-    public Employee addEmployee(@RequestBody Employee employee) throws SystemException {
+    public Employee addEmployee(@Valid @RequestBody Employee employee) throws SystemException {
         return employeeService.addEmployee(employee);
     }
 
@@ -53,7 +65,7 @@ public class EmployeeController {
     // POST localhost:8085/employees/list
     @PostMapping("/list")
     public List<Employee> addListOfEmployees(
-            @RequestBody List<Employee> employees) throws SystemException {
+            @Valid @RequestBody List<Employee> employees) throws SystemException {
 
         return employeeService.addListOfEmployees(employees);
     }
@@ -64,7 +76,7 @@ public class EmployeeController {
     // Update one employee
     // PUT localhost:8085/employees
     @PutMapping
-    public Employee updateEmployee(@RequestBody Employee employee) throws SystemException {
+    public Employee updateEmployee(@Valid @RequestBody Employee employee) throws SystemException {
         return employeeService.updateEmployee(employee);
     }
 
@@ -73,7 +85,7 @@ public class EmployeeController {
     // PUT localhost:8085/employees/list
     @PutMapping("/list")
     public List<Employee> updateListOfEmployees(
-            @RequestBody List<Employee> employees) throws SystemException {
+            @Valid @RequestBody List<Employee> employees) throws SystemException {
 
         return employeeService.updateListOfEmployees(employees);
     }
@@ -91,7 +103,7 @@ public class EmployeeController {
 
     // Delete one employee by ID
     // DELETE localhost:8085/employees/{id}
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id:\\d+}")
     public void deleteEmployeeById(@PathVariable long id) {
         employeeService.deleteEmployeeById(id);
     }

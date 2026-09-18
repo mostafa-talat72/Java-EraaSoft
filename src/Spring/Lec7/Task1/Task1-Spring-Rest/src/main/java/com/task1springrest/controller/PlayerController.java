@@ -3,6 +3,7 @@ package com.task1springrest.controller;
 import com.task1springrest.model.Player;
 import com.task1springrest.service.PlayerService;
 import jakarta.transaction.SystemException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +22,15 @@ public class PlayerController {
 
     //in postman method POST --> localhost:8085/players and send json in body
     @PostMapping
-    public Player addPlayer(@RequestBody Player player) throws SystemException {
+    public Player addPlayer(@Valid @RequestBody Player player) throws SystemException {
         return playerService.addPlayer(player);
     }
 
-    //in postman method PUT --> localhost:8085/players and send json in body
-    @PutMapping
-    public Player updatePlayer( @RequestBody Player player) throws SystemException {
+    //in postman method PUT --> localhost:8085/players/{id} and send json in body
+    @PutMapping("/{id}")
+    public Player updatePlayer(@PathVariable long id,
+                               @Valid @RequestBody Player player) throws SystemException {
+        player.setId(id);
         return playerService.updatePlayer(player);
     }
 
