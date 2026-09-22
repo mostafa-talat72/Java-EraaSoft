@@ -88,8 +88,14 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseSimpleResponse> getAllCourses() {
-
-        return courseRepo.findAll().stream().map(course -> new CourseSimpleResponse(
+        List<Course> courses = courseRepo.findAll();
+        if (courses.isEmpty()){
+            throw new CourseException(
+                    "courses",
+                    "No Courses found"
+            );
+        }
+        return courses.stream().map(course -> new CourseSimpleResponse(
                 course.getId(),
                 course.getTitle(),
                 course.getDescription()

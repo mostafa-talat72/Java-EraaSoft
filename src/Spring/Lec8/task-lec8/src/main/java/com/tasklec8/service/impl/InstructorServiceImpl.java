@@ -85,6 +85,14 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public List<InstructorSimpleResponse> getAllInstructors() {
+        List<Instructor> instructors = instructorRepo.findAll();
+
+        if(instructors.isEmpty()){
+            throw new InstructorException(
+                    "Instructors",
+                    "No Instructors found"
+            );
+        }
 
         return instructorRepo.findAll().stream()
                 .map(instructor -> new InstructorSimpleResponse(

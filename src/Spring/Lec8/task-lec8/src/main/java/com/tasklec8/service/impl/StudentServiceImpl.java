@@ -87,7 +87,12 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<StudentSimpleResponse> getAllStudents() {
         List<Student> students = studentRepo.findAll();
-
+        if(students.isEmpty()){
+            throw new StudentException(
+                    "Students",
+                    "No Students found"
+            );
+        }
         return students.stream().map(student ->  new StudentSimpleResponse(
                     student.getId(),
                     student.getName(),
