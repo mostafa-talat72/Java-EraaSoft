@@ -1,0 +1,5 @@
+language: "java"
+name: "EmployeeEmailTask"
+appmap_dir: "tmp/appmap"
+packages:
+- path: "com.lec9.employeeemailtask"
