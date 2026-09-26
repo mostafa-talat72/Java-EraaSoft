@@ -11,6 +11,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface EmployeeMapper {
 
+    // DTO -> Entity: emails handled manually in service (setEmployee + add), so ignore here.
     @Mapping(target = "emails", ignore = true)
     Employee convertFromEmployeeResponseToEmployee(EmployeeResponse employeeResponse);
 

@@ -10,6 +10,8 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+// Employee entity (parent side of OneToMany with Email).
+// Bean Validation runs before DB; @CheckConstraint is a DB-level guard.
 @Entity
 @Getter
 @Setter
@@ -17,6 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Employee {
 
+    // PK generated from employee_seq.
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
@@ -33,8 +36,9 @@ public class Employee {
     @Column(nullable = false)
     private String name;
 
+    // Age: 16-39 (implements task rule age > 15 and < 40).
     @NotNull(message = "Employee age is required")
-    @Min(value = 16, message = "Employee age must be greater than 15")
+    @Min(value = 15, message = "Employee age must be greater than 15")
     @Max(value = 39, message = "Employee age must be less than 40")
     @Column(
             nullable = false,
@@ -47,6 +51,7 @@ public class Employee {
     )
     private Integer age;
 
+    // Salary: strictly between 5000 and 10000 (exclusive).
     @NotNull(message = "Employee salary is required")
     @DecimalMin(
             value = "5000",
@@ -69,6 +74,7 @@ public class Employee {
     )
     private Double salary;
 
+    // Child emails: cascade ALL + orphanRemoval so save/delete propagates.
     @OneToMany(
             mappedBy = "employee",
             cascade = CascadeType.ALL,

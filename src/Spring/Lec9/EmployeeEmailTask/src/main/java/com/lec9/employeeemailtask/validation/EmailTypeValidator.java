@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 public class EmailTypeValidator
         implements ConstraintValidator<ValidEmailType, Object> {
 
+    // Passes on null name/content so @NotBlank reports them; compares provider vs type otherwise.
     @Override
     public boolean isValid(
             Object object,
@@ -38,6 +39,7 @@ public class EmailTypeValidator
 
             String provider = domain.split("\\.")[0];
 
+            // Mismatch (e.g. type=gmail but content=@yahoo.com) -> violation on content.
             if (!provider.equalsIgnoreCase(name)) {
 
                 context.disableDefaultConstraintViolation();

@@ -1,5 +1,6 @@
 package com.lec9.employeeemailtask.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,7 +27,6 @@ public class EmployeeResponse {
     private Integer age;
 
     @NotNull(message = "Employee salary is required")
-    @NotNull(message = "Employee salary is required")
     @DecimalMin(
             value = "5000",
             inclusive = false,
@@ -39,5 +39,6 @@ public class EmployeeResponse {
     )
     private Double salary;
 
-    private List<EmailSimpleResponse> emails = new ArrayList<>();
+    @Valid
+    private List<@Valid EmailSimpleResponse> emails = new ArrayList<>();
 }

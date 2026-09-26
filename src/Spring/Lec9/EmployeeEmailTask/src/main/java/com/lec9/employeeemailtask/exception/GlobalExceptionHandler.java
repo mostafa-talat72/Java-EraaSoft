@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+// Single error shape for the whole API: {status, message, errors:{field:msg}}.
 public class GlobalExceptionHandler {
+    // Bean Validation failures (@Valid) -> 400.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(
             MethodArgumentNotValidException ex) {
@@ -33,6 +35,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // Employee business-rule failures -> 400.
     @ExceptionHandler(EmployeeException.class)
     public ResponseEntity<Map<String, Object>> handleEmployeeException(
             EmployeeException ex) {
@@ -48,6 +51,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // Email business-rule failures -> 400.
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<Map<String, Object>> handleEmailException(
             EmailException ex) {
@@ -63,6 +67,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // Shared builder for the {status, message, errors} body.
     private ResponseEntity<Map<String, Object>> buildResponse(
             int status,
             String message,

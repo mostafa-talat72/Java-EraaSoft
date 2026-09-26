@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface EmailMapper {
 
-
+    // Full and slim conversions both ways; employee link carried by id reference.
     Email convertFromEmailResponseToEmail(EmailResponse emailResponse);
 
     EmailResponse convertFromEmailToEmailResponse(Email email);

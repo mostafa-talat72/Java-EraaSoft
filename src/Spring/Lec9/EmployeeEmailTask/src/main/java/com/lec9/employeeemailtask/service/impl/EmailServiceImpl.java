@@ -1,11 +1,13 @@
 package com.lec9.employeeemailtask.service.impl;
 
 import com.lec9.employeeemailtask.dto.EmailResponse;
+import com.lec9.employeeemailtask.dto.EmployeeSimpleResponse;
 import com.lec9.employeeemailtask.exception.EmailException;
 import com.lec9.employeeemailtask.mapper.EmailMapper;
 import com.lec9.employeeemailtask.model.Email;
 import com.lec9.employeeemailtask.repo.EmailRepo;
 import com.lec9.employeeemailtask.service.EmailService;
+import com.lec9.employeeemailtask.validation.EmployeeValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +23,13 @@ public class EmailServiceImpl implements EmailService {
 
     private EmailMapper emailMapper;
 
+    private EmployeeValidator employeeValidator;
+
     @Autowired
-    public EmailServiceImpl(EmailRepo emailRepo, EmailMapper emailMapper) {
+    public EmailServiceImpl(EmailRepo emailRepo, EmailMapper emailMapper,  EmployeeValidator employeeValidator) {
         this.emailRepo = emailRepo;
         this.emailMapper = emailMapper;
+        this.employeeValidator = employeeValidator;
     }
 
     /**
@@ -52,6 +57,9 @@ public class EmailServiceImpl implements EmailService {
             );
         }
 
+        EmployeeSimpleResponse employeeSimpleResponse = employeeValidator.checkEmployee(emailResponse.getEmployee());
+
+        emailResponse.setEmployee(employeeSimpleResponse);
         // Convert DTO to Entity
         Email email =
                 emailMapper.convertFromEmailResponseToEmail(emailResponse);
@@ -97,6 +105,10 @@ public class EmailServiceImpl implements EmailService {
                     "This email already exists: " + emailResponse.getContent()
             );
         }
+
+        EmployeeSimpleResponse employeeSimpleResponse = employeeValidator.checkEmployee(emailResponse.getEmployee());
+
+        emailResponse.setEmployee(employeeSimpleResponse);
 
         // Convert DTO to Entity
         Email email =
@@ -162,7 +174,7 @@ public class EmailServiceImpl implements EmailService {
     public List<EmailResponse> getEmailsByName(String name) {
 
         // Find all Emails with the specified type/name
-        List<Email> emails = emailRepo.findByName(name);
+        List<Email> emails = emailRepo.findByNameIgnoreCase(name);
 
         // Check if any Emails were found
         if (emails.isEmpty()) {
@@ -185,7 +197,7 @@ public class EmailServiceImpl implements EmailService {
     public List<EmailResponse> getEmailsByListOfNames(List<String> names) {
 
         // Find all Emails whose names match the provided names
-        List<Email> emails = emailRepo.findAllByNameIn(names);
+        List<Email> emails = emailRepo.findAllByNameInIgnoreCase(names);
 
         // Extract the names that were actually found
         Set<String> foundNames = emails.stream()

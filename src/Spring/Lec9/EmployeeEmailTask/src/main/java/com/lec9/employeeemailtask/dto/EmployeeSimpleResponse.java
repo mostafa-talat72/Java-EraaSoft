@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+// Lightweight employee view (used nested inside EmailResponse; only id is required for linking).
 public class EmployeeSimpleResponse {
 
     private Long id;
@@ -23,7 +24,6 @@ public class EmployeeSimpleResponse {
     @Max(value = 39, message = "Employee age must be less than 40")
     private Integer age;
 
-    @NotNull(message = "Employee salary is required")
     @NotNull(message = "Employee salary is required")
     @DecimalMin(
             value = "5000",

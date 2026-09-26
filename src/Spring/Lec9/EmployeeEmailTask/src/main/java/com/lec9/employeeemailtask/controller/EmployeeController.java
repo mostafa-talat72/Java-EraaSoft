@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/employees")
+// Employee REST API: CRUD + bulk lookups. All writes validated via @Valid.
 public class EmployeeController {
 
     private EmployeeService employeeService;
@@ -21,22 +22,7 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    /*
-     * Create a new Employee
-     *
-     * HTTP Method: POST
-     * URL: /employees
-     *
-     * @Valid:
-     * Validates the request body using Bean Validation annotations.
-     *
-     * @RequestBody:
-     * Converts the JSON request body into EmployeeResponse object.
-     *
-     * Response:
-     * 201 Created
-     * Returns the created employee.
-     */
+    // POST /employees -> 201 Created + Location header.
     @PostMapping
     public ResponseEntity<EmployeeResponse> createEmployee(
             @Valid @RequestBody EmployeeResponse employeeResponse) {
@@ -51,17 +37,7 @@ public class EmployeeController {
     }
 
 
-    /*
-     * Update an existing Employee
-     *
-     * HTTP Method: PUT
-     * URL: /employees
-     *
-     * The Employee ID should be included in the request body.
-     *
-     * @Valid:
-     * Validates the employee data before updating.
-     */
+    // PUT /employees (id in body) -> 200 OK.
     @PutMapping
     public ResponseEntity<EmployeeResponse> updateEmployee(
             @Valid @RequestBody EmployeeResponse employeeResponse) {
@@ -73,18 +49,7 @@ public class EmployeeController {
     }
 
 
-    /*
-     * Delete an Employee by ID
-     *
-     * HTTP Method: DELETE
-     * URL: /employees/{id}
-     *
-     * @PathVariable:
-     * Gets the employee ID from the URL.
-     *
-     * Response:
-     * 204 No Content
-     */
+    // DELETE /employees/{id} -> 204 No Content.
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(
             @PathVariable long id) {
@@ -95,14 +60,7 @@ public class EmployeeController {
     }
 
 
-    /*
-     * Get all Employees
-     *
-     * HTTP Method: GET
-     * URL: /employees
-     *
-     * Returns a list containing all employees.
-     */
+    // GET /employees -> 200 OK list.
     @GetMapping
     public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
 
@@ -113,15 +71,7 @@ public class EmployeeController {
     }
 
 
-    /*
-     * Get one Employee by ID
-     *
-     * HTTP Method: GET
-     * URL: /employees/{id}
-     *
-     * @PathVariable:
-     * Gets the employee ID from the URL.
-     */
+    // GET /employees/{id} -> 200 OK single.
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponse> getEmployeeById(
             @PathVariable long id) {
@@ -133,15 +83,7 @@ public class EmployeeController {
     }
 
 
-    /*
-     * Get Employees by a list of IDs
-     *
-     * HTTP Method: GET
-     * URL: /employees/by-ids?ids=1,2,5
-     *
-     * @RequestParam:
-     * Reads the IDs from the query parameters.
-     */
+    // GET /employees/by-ids?ids=1,2,5 -> 200 OK.
     @GetMapping("/by-ids")
     public ResponseEntity<List<EmployeeResponse>> getEmployeesByListOfIds(
             @RequestParam List<Long> ids) {
@@ -153,15 +95,7 @@ public class EmployeeController {
     }
 
 
-    /*
-     * Get Employees by a list of names
-     *
-     * HTTP Method: GET
-     * URL: /employees/by-names?names=Ahmed,Mostafa
-     *
-     * @RequestParam:
-     * Reads the names from the query parameters.
-     */
+    // GET /employees/by-names?names=Ahmed,Mostafa -> 200 OK.
     @GetMapping("/by-names")
     public ResponseEntity<List<EmployeeResponse>> getEmployeesByListOfNames(
             @RequestParam List<String> names) {

@@ -2,8 +2,10 @@ package com.lec9.employeeemailtask.dto;
 
 import com.lec9.employeeemailtask.validation.ValidEmailType;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

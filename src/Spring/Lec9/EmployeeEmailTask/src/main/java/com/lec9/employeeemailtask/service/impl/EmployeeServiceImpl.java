@@ -8,6 +8,7 @@ import com.lec9.employeeemailtask.model.Email;
 import com.lec9.employeeemailtask.model.Employee;
 import com.lec9.employeeemailtask.repo.EmployeeRepo;
 import com.lec9.employeeemailtask.service.EmployeeService;
+import com.lec9.employeeemailtask.validation.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +23,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeRepo employeeRepo;
     private EmployeeMapper employeeMapper;
     private EmailMapper emailMapper;
+    private EmailValidator emailValidator;
     @Autowired
-    public EmployeeServiceImpl(EmployeeRepo employeeRepo, EmployeeMapper employeeMapper, EmailMapper emailMapper) {
+    public EmployeeServiceImpl(EmployeeRepo employeeRepo, EmployeeMapper employeeMapper, EmailMapper emailMapper,  EmailValidator emailValidator) {
         this.employeeRepo = employeeRepo;
         this.employeeMapper = employeeMapper;
         this.emailMapper = emailMapper;
+        this.emailValidator = emailValidator;
     }
 
     /**
@@ -50,15 +53,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee =
                 employeeMapper.convertFromEmployeeResponseToEmployee(employeeResponse);
 
-        List<Email> emails =
-                emailMapper.convertFromEmailSimpleResponseListToEmailList(
-                        employeeResponse.getEmails()
-                );
+        if(Objects.nonNull(employeeResponse.getEmails())) {
+            emailValidator.checkContentForCreate(employeeResponse.getEmails());
 
-        emails.forEach(email -> {
-            email.setEmployee(employee);
-            employee.getEmails().add(email);
-        });
+            List<Email> emails =
+                    emailMapper.convertFromEmailSimpleResponseListToEmailList(
+                            employeeResponse.getEmails()
+                    );
+            emails.forEach(email -> {
+                email.setEmployee(employee);
+                employee.getEmails().add(email);
+            });
+        }
         // Save the Employee and convert the saved Entity back to DTO
         return employeeMapper.convertFromEmployeeToEmployeeResponse(
                 employeeRepo.save(employee)
@@ -93,6 +99,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee =
                 employeeMapper.convertFromEmployeeResponseToEmployee(employeeResponse);
 
+        if(Objects.nonNull(employeeResponse.getEmails())) {
+            emailValidator.checkContentForUpdate(employeeResponse.getEmails());
+
+            List<Email> emails =
+                    emailMapper.convertFromEmailSimpleResponseListToEmailList(
+                            employeeResponse.getEmails()
+                    );
+            emails.forEach(email -> {
+                email.setEmployee(employee);
+                employee.getEmails().add(email);
+            });
+        }
         // Save the updated Employee and return the updated DTO
         return employeeMapper.convertFromEmployeeToEmployeeResponse(
                 employeeRepo.save(employee)
@@ -205,7 +223,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeResponse> getEmployeesByListOfNames(List<String> names) {
 
         // Retrieve all Employees whose names match the provided names
-        List<Employee> employees = employeeRepo.findAllByNameIn(names);
+        List<Employee> employees = employeeRepo.findAllByNameInIgnoreCase(names);
 
         // Extract the names of Employees that were actually found
         Set<String> foundNames = employees.stream()

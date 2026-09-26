@@ -14,6 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @ValidEmailType
+// Slim email view nested inside EmployeeResponse (no back-reference to avoid cycles).
 public class EmailSimpleResponse {
     private Long id;
 

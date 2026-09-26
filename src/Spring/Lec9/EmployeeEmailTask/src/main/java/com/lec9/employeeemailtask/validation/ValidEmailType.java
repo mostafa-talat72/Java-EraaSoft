@@ -9,6 +9,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = EmailTypeValidator.class)
 @Documented
+// Class-level check: email content provider must match the type name.
 public @interface ValidEmailType {
 
     String message() default "Email content must match email type";

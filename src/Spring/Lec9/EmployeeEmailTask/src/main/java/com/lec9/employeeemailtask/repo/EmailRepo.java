@@ -9,13 +9,16 @@ import java.util.List;
 @Repository
 public interface EmailRepo extends JpaRepository<Email, Long> {
 
+    // Unique-content guards used by EmailValidator/service.
     boolean existsByContent(String content);
 
+    // Update-safe unique check: content used by another id?
     boolean existsByContentAndIdNot(String content, long id);
 
+    // Exact-content lookup; case-insensitive name lookups.
     Email findByContent(String content);
 
-    List<Email> findByName(String name);
+    List<Email> findByNameIgnoreCase(String name);
 
-    List<Email> findAllByNameIn(List<String> names);
+    List<Email> findAllByNameInIgnoreCase(List<String> names);
 }

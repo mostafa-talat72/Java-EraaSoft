@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// Email entity (child side of ManyToOne with Employee).
+// name = provider type (gmail/yahoo); content = full address, unique.
 @Entity
 @Getter
 @Setter
@@ -17,6 +19,7 @@ import lombok.Setter;
 @ValidEmailType
 public class Email {
 
+    // PK generated from email_seq.
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
@@ -30,6 +33,7 @@ public class Email {
     private Long id;
 
     @NotBlank(message = "Email type is required")
+    // Provider must start with a letter, letters/numbers only.
     @Pattern(
             regexp = "^[A-Za-z][A-Za-z0-9]*$",
             message = "Email type must start with a letter and contain only letters and numbers"
@@ -46,6 +50,7 @@ public class Email {
     private String name;
 
     @NotBlank(message = "Email content is required")
+    // Standard email shape + valid domain; unique at DB level.
     @jakarta.validation.constraints.Email(
             message = "Invalid email format"
     )
@@ -65,6 +70,7 @@ public class Email {
     )
     private String content;
 
-    @ManyToOne(cascade =  CascadeType.PERSIST)
+    // Owning side; FK column employee_id (nullable, set by service).
+    @ManyToOne
     private Employee employee;
 }

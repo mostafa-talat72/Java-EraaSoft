@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface EmployeeRepo extends JpaRepository<Employee, Long> {
 
-    List<Employee> findAllByNameIn(List<String> names);
+    // Case-insensitive bulk lookup by names.
+    List<Employee> findAllByNameInIgnoreCase(List<String> names);
 }
