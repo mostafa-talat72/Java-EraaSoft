@@ -1,5 +1,7 @@
 package com.tasklec11.controller;
 
+import com.tasklec11.dto.PostDTO;
+import com.tasklec11.dto.PostSimpleDTO;
 import com.tasklec11.dto.UserDTO;
 import com.tasklec11.dto.UserSimpleDTO;
 import com.tasklec11.service.UserService;
@@ -49,12 +51,17 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<List<PostSimpleDTO>> getPostsByParticularUserId(@PathVariable Long id){
+        return ResponseEntity.ok(userService.getPostsByParticularUserId(id));
+    }
+
     @GetMapping("/usersWithPost")
     public ResponseEntity<List<UserDTO>> getAllUsersWithPost(){
         return ResponseEntity.ok(userService.getAllUsersWithPost());
     }
 
-    @GetMapping("/usersWithPost/{id}")
+    @GetMapping("/userWithPost/{id}")
     public ResponseEntity<UserDTO> getUserWithPostById(@PathVariable Long id){
         return ResponseEntity.ok(userService.getUserWithPostById(id));
     }

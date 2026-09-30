@@ -7,6 +7,7 @@ import com.tasklec11.exception.PostException;
 import com.tasklec11.mapper.PostMapper;
 import com.tasklec11.mapper.UserMapper;
 import com.tasklec11.model.Post;
+import com.tasklec11.model.User;
 import com.tasklec11.repo.PostRepo;
 import com.tasklec11.service.PostService;
 import com.tasklec11.service.UserService;
@@ -23,14 +24,12 @@ public class PostServiceImpl implements PostService {
     private PostMapper postMapper;
 
     private UserService userService;
-    private UserMapper userMapper;
 
     @Autowired
-    public PostServiceImpl(PostRepo postRepo, PostMapper postMapper, UserService userService, UserMapper userMapper) {
+    public PostServiceImpl(PostRepo postRepo, PostMapper postMapper, UserService userService) {
         this.postRepo = postRepo;
         this.postMapper = postMapper;
         this.userService = userService;
-        this.userMapper = userMapper;
     }
 
     @Override
@@ -132,22 +131,7 @@ public class PostServiceImpl implements PostService {
         postRepo.deleteById(id);
     }
 
-    @Override
-    public List<PostDTO> getPostsByParticularUserId(Long userId) {
-        UserSimpleDTO user = userService.getUserById(userId);
-        if(Objects.isNull(user)){
-            throw new PostException(
-                    "userId",
-                    "User ID must be not null when creating a new post"
-            );
-        }
 
-        List<Post> posts = postRepo.findAllByUser(
-                userMapper.convertFromUserSimpleDtoToUser(user)
-        );
-
-        return postMapper.convertFromPostListToPostDtoList(posts);
-    }
 
     @Override
     public List<PostDTO> getAllPostsWithUsers() {
@@ -176,4 +160,19 @@ public class PostServiceImpl implements PostService {
                postRepo.findById(id).get()
        );
     }
+
+    @Override
+    public List<PostSimpleDTO> getAllPostWithUser(User user){
+
+        List<Post> posts = postRepo.findAllByUser(user);
+        if(posts.isEmpty()){
+            throw new PostException(
+                    "user",
+                    "Post does not exist with user"
+            );
+        }
+
+        return postMapper.convertFromPostListToPostSimpleDtoList(posts);
+    }
+
 }

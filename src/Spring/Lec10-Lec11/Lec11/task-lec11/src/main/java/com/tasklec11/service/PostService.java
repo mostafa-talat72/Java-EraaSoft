@@ -2,6 +2,7 @@ package com.tasklec11.service;
 
 import com.tasklec11.dto.PostDTO;
 import com.tasklec11.dto.PostSimpleDTO;
+import com.tasklec11.model.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +20,10 @@ public interface PostService {
 
     public void deletePost(Long id);
 
-    public List<PostDTO> getPostsByParticularUserId(Long userId);
 
     public List<PostDTO> getAllPostsWithUsers();
 
     public PostDTO getPostWithUsersById(Long id);
+
+    public List<PostSimpleDTO> getAllPostWithUser(User user);
 }

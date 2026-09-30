@@ -1,8 +1,8 @@
 package com.tasklec11.service;
 
+import com.tasklec11.dto.PostSimpleDTO;
 import com.tasklec11.dto.UserDTO;
 import com.tasklec11.dto.UserSimpleDTO;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +19,8 @@ public interface UserService {
     public  UserSimpleDTO updateUser(Long id,UserSimpleDTO userSimpleDTO);
 
     public void deleteUser(Long id);
+
+    public List<PostSimpleDTO> getPostsByParticularUserId(Long id);
 
     public List<UserDTO> getAllUsersWithPost();
 

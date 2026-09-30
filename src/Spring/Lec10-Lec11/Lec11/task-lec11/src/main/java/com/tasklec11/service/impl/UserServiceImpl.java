@@ -1,11 +1,16 @@
 package com.tasklec11.service.impl;
 
+import com.tasklec11.dto.PostDTO;
+import com.tasklec11.dto.PostSimpleDTO;
 import com.tasklec11.dto.UserDTO;
 import com.tasklec11.dto.UserSimpleDTO;
+import com.tasklec11.exception.PostException;
 import com.tasklec11.exception.UserException;
 import com.tasklec11.mapper.UserMapper;
+import com.tasklec11.model.Post;
 import com.tasklec11.model.User;
 import com.tasklec11.repo.UserRepo;
+import com.tasklec11.service.PostService;
 import com.tasklec11.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,11 +24,12 @@ public class UserServiceImpl implements UserService {
 
     private UserRepo userRepo;
     private UserMapper userMapper;
-
+    private PostService postService;
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, UserMapper userMapper) {
+    public UserServiceImpl(UserRepo userRepo, UserMapper userMapper, PostService postService) {
         this.userRepo = userRepo;
         this.userMapper = userMapper;
+        this.postService = postService;
     }
 
     @Override
@@ -107,6 +113,19 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepo.deleteById(id);
+    }
+
+    @Override
+    public List<PostSimpleDTO> getPostsByParticularUserId(Long id) {
+        Optional<User> user = userRepo.findById(id);
+        if(user.isEmpty()){
+            throw new UserException(
+                    "id",
+                    "User does not exist with ID: " + id
+            );
+        }
+
+        return postService.getAllPostWithUser(user.get());
     }
 
     @Override

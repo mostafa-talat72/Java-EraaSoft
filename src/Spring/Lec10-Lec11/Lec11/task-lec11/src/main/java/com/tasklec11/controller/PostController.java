@@ -49,17 +49,12 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<List<PostDTO>> getPostsByParticularUserId(@PathVariable Long userId){
-        return ResponseEntity.ok(postService.getPostsByParticularUserId(userId));
-    }
-
     @GetMapping("/postsWithUsers")
     public ResponseEntity<List<PostDTO>> getAllPostsWithUsers(){
         return ResponseEntity.ok(postService.getAllPostsWithUsers());
     }
 
-    @GetMapping("/postsWithUsers/{id}")
+    @GetMapping("/postWithUser/{id}")
     public ResponseEntity<PostDTO> getPostWithUsersById(@PathVariable Long id){
         return ResponseEntity.ok(postService.getPostWithUsersById(id));
     }
