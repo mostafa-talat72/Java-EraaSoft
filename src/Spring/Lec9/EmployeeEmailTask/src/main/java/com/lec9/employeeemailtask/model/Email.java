@@ -72,5 +72,6 @@ public class Email {
 
     // Owning side; FK column employee_id (nullable, set by service).
     @ManyToOne
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 }
