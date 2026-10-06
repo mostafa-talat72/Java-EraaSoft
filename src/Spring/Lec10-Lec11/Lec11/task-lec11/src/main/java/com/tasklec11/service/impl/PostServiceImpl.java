@@ -4,6 +4,7 @@ import com.tasklec11.dto.PostDTO;
 import com.tasklec11.dto.PostSimpleDTO;
 import com.tasklec11.dto.UserSimpleDTO;
 import com.tasklec11.exception.PostException;
+import com.tasklec11.helper.UserPostHelper;
 import com.tasklec11.mapper.PostMapper;
 import com.tasklec11.mapper.UserMapper;
 import com.tasklec11.model.Post;
@@ -23,13 +24,13 @@ public class PostServiceImpl implements PostService {
     private PostRepo postRepo;
     private PostMapper postMapper;
 
-    private UserService userService;
+    private UserPostHelper userPostHelper;
 
     @Autowired
-    public PostServiceImpl(PostRepo postRepo, PostMapper postMapper, UserService userService) {
+    public PostServiceImpl(PostRepo postRepo, PostMapper postMapper, UserPostHelper userPostHelper) {
         this.postRepo = postRepo;
         this.postMapper = postMapper;
-        this.userService = userService;
+        this.userPostHelper = userPostHelper;
     }
 
     @Override
@@ -48,7 +49,7 @@ public class PostServiceImpl implements PostService {
             );
         }
 
-        UserSimpleDTO user = userService.getUserById(postDTO.getUser().getId());
+        UserSimpleDTO user = userPostHelper.getUserById(postDTO.getUser().getId());
         if(Objects.isNull(user)){
             throw new PostException(
                     "user",
@@ -163,16 +164,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostSimpleDTO> getAllPostWithUser(User user){
-
-        List<Post> posts = postRepo.findAllByUser(user);
-        if(posts.isEmpty()){
-            throw new PostException(
-                    "user",
-                    "Post does not exist with user"
-            );
-        }
-
-        return postMapper.convertFromPostListToPostSimpleDtoList(posts);
+        return userPostHelper.getAllPostWithUser(user.getId());
     }
 
 }

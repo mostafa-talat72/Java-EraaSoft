@@ -1,0 +1,21 @@
+
+spring:
+    application:
+        name: task-lec11
+
+    datasource:
+        driver-class-name: oracle.jdbc.OracleDriver
+        url: jdbc:oracle:thin:@//localhost:1521/orclpdb
+        username: EWALLET
+        password: 123456
+
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+
+    messages:
+        basename: i18n/messages
+
+server:
+    port: 8085

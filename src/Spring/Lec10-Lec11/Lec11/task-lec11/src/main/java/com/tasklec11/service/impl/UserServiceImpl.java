@@ -6,6 +6,7 @@ import com.tasklec11.dto.UserDTO;
 import com.tasklec11.dto.UserSimpleDTO;
 import com.tasklec11.exception.PostException;
 import com.tasklec11.exception.UserException;
+import com.tasklec11.helper.UserPostHelper;
 import com.tasklec11.mapper.UserMapper;
 import com.tasklec11.model.Post;
 import com.tasklec11.model.User;
@@ -24,12 +25,12 @@ public class UserServiceImpl implements UserService {
 
     private UserRepo userRepo;
     private UserMapper userMapper;
-    private PostService postService;
+    private UserPostHelper userPostHelper;
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, UserMapper userMapper, PostService postService) {
+    public UserServiceImpl(UserRepo userRepo, UserMapper userMapper,  UserPostHelper userPostHelper) {
         this.userRepo = userRepo;
         this.userMapper = userMapper;
-        this.postService = postService;
+        this.userPostHelper = userPostHelper;
     }
 
     @Override
@@ -52,15 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserSimpleDTO getUserById(Long id) {
-        Optional<User> user = userRepo.findById(id);
-        if(user.isEmpty()){
-            throw new UserException(
-                    "id",
-                    "User does not exist with ID: " + id
-            );
-        }
-
-        return userMapper.convertFromUserToUserSimpleDto(user.get());
+        return userPostHelper.getUserById(id);
     }
 
     @Override
@@ -117,15 +110,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<PostSimpleDTO> getPostsByParticularUserId(Long id) {
-        Optional<User> user = userRepo.findById(id);
-        if(user.isEmpty()){
-            throw new UserException(
-                    "id",
-                    "User does not exist with ID: " + id
-            );
-        }
 
-        return postService.getAllPostWithUser(user.get());
+        return userPostHelper.getAllPostWithUser(id);
     }
 
     @Override
