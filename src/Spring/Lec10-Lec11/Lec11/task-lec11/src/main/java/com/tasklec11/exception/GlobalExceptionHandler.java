@@ -64,6 +64,37 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    @ExceptionHandler(AccountException.class)
+    public ResponseEntity<Map<String, Object>> handleAccountException(
+            AccountException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        errors.put(ex.getField(), ex.getMessage());
+
+        return buildResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Account operation failed",
+                errors
+        );
+    }
+
+    @ExceptionHandler(RolesException.class)
+    public ResponseEntity<Map<String, Object>> handleRolesException(
+            RolesException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        errors.put(ex.getField(), ex.getMessage());
+
+        return buildResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Roles operation failed",
+                errors
+        );
+    }
+
     private ResponseEntity<Map<String, Object>> buildResponse(
             int status,
             String message,

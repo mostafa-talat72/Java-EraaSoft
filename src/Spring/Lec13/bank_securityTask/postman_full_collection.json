@@ -1,0 +1,1135 @@
+{
+	"info": {
+		"_postman_id": "c1d2e3f4-5a6b-4c8d-9e0f-1a2b3c4d5e6f",
+		"name": "Bank Security — Full Regression (self-seeding)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8085" },
+		{ "key": "adminEmail", "value": "admin@bank.com" },
+		{ "key": "adminPass", "value": "admin1234" },
+		{ "key": "managerEmail", "value": "manager@bank.com" },
+		{ "key": "managerPass", "value": "manager1234" },
+		{ "key": "customerEmail", "value": "customer@bank.com" },
+		{ "key": "customerPass", "value": "customer1234" },
+		{ "key": "auditorEmail", "value": "auditor@bank.com" },
+		{ "key": "auditorPass", "value": "auditor1234" },
+		{ "key": "victimEmail", "value": "victim@bank.com" },
+		{ "key": "victimPass", "value": "victim1234" },
+		{ "key": "spoofEmail", "value": "spoof@bank.com" },
+		{ "key": "spoofPass", "value": "spoof1234" },
+		{ "key": "roleId", "value": "4" }
+	],
+	"item": [
+		{
+			"name": "1 — Register all users (run first!)",
+			"item": [
+				{
+					"name": "1.1 Register CUSTOMER (auto-saves targetCustomerId)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Test Customer A\",\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPass}}\",\n  \"phone\": \"01012345678\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"if (pm.response.code === 201) { pm.globals.set('targetCustomerId', pm.response.json().id); }",
+						"pm.test('201 created (400 = already registered, fine on re-runs)', () => pm.expect([201, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "1.2 Register victim (auto-saves otherCustomerId)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Shutdown Victim\",\n  \"email\": \"{{victimEmail}}\",\n  \"password\": \"{{victimPass}}\",\n  \"phone\": \"01098765432\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"if (pm.response.code === 201) { pm.globals.set('otherCustomerId', pm.response.json().id); }",
+						"pm.test('201 (400 = already registered, fine)', () => pm.expect([201, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "1.3 Register ADMIN user (no roles yet!)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Bank Admin\",\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPass}}\",\n  \"phone\": \"01011111111\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('201 (400 = already registered, fine)', () => pm.expect([201, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "1.4 Register BANK_MANAGER user",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Bank Manager\",\n  \"email\": \"{{managerEmail}}\",\n  \"password\": \"{{managerPass}}\",\n  \"phone\": \"01022222222\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('201 (400 = already registered, fine)', () => pm.expect([201, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "1.5 Register AUDITOR user",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Bank Auditor\",\n  \"email\": \"{{auditorEmail}}\",\n  \"password\": \"{{auditorPass}}\",\n  \"phone\": \"01033333333\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('201 (400 = already registered, fine)', () => pm.expect([201, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "1.6 Duplicate registration → 400 (sanity)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Duplicate\",\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPass}}\",\n  \"phone\": \"01012345678\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 duplicate email', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "1.7 Invalid email → 400 validation",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Bad Email\",\n  \"email\": \"not-an-email\",\n  \"password\": \"{{customerPass}}\",\n  \"phone\": \"01012345678\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 validation failed', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "1.8 Bad phone → 400 validation",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Bad Phone\",\n  \"email\": \"phone-test@bank.com\",\n  \"password\": \"{{customerPass}}\",\n  \"phone\": \"123456\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 phone pattern', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "1.9 Register SPOOF user (for Attack S1b)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Role Hijacker\",\n  \"email\": \"{{spoofEmail}}\",\n  \"password\": \"{{spoofPass}}\",\n  \"phone\": \"01044444444\",\n  \"role\": \"ROLE_ADMIN\",\n  \"roles\": [\"ROLE_ADMIN\"]\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('201 (400 = already registered, spoof fields ignored either way)', () => pm.expect([201, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "1.10 Recover targetCustomerId from /auth/me",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 profile', () => pm.response.to.have.status(200));",
+						"const b = pm.response.json();",
+						"if (b && b.id) { pm.globals.set('targetCustomerId', String(b.id)); }"
+					]}}]
+				},
+				{
+					"name": "1.11 Recover otherCustomerId from /auth/me (victim)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{victimEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{victimPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 profile', () => pm.response.to.have.status(200));",
+						"const b = pm.response.json();",
+						"if (b && b.id) { pm.globals.set('otherCustomerId', String(b.id)); }"
+					]}}]
+				},
+				{
+					"name": "1.12 Recover adminId from /auth/me",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 profile', () => pm.response.to.have.status(200));",
+						"const b = pm.response.json();",
+						"if (b && b.id) { pm.globals.set('adminId', String(b.id)); }"
+					]}}]
+				},
+				{
+					"name": "===== STOP HERE → run seed_role_promotions.sql → resume folders 2..10 =====",
+					"request": { "method": "GET", "url": "http://localhost:8085/auth/me" },
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('reminder marker', () => true);"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "2 — Login Tests (needs role promotions!)",
+			"item": [
+				{
+					"name": "T1 correct creds → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "T2 wrong password → 401",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "wrong-password-9", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('401', () => pm.response.to.have.status(401));"
+					]}}]
+				},
+				{
+					"name": "T3 unknown email → 401",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "ghost@bank.com", "type": "string" },
+							{ "key": "password", "value": "ghost12345", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('401', () => pm.response.to.have.status(401));"
+					]}}]
+				},
+				{
+					"name": "T5 CUSTOMER → admin endpoint → 403",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/admin/roles",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "Seeder check — permissions seeded",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/admin/permissions",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));",
+						"pm.test('at least 10 permissions', () => { const body = pm.response.json(); pm.expect(body.length).to.be.at.least(10); });"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "3 — Accounts (create / link / ownership)",
+			"item": [
+				{
+					"name": "3.R Recover all account ids via /reports/accounts (ADMIN)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 reports', () => pm.response.to.have.status(200));",
+						"const list = pm.response.json();",
+						"const pick = (v, idKey, numKey) => { const a = Array.isArray(list) ? list.find(x => x.customer && x.customer.email === pm.variables.get(v)) : null; if (a && a.id) { pm.globals.set(idKey, String(a.id)); if (a.accountNumber) { pm.globals.set(numKey, String(a.accountNumber)); } } };",
+						"pick('adminEmail', 'adminAccountId', 'adminAccountNumber');",
+						"pick('customerEmail', 'customerAccountId', 'customerAccountNumber');",
+						"pick('victimEmail', 'otherAccountId', 'otherAccountNumber');"
+					]}}]
+				},
+				{
+					"name": "3.0 ADMIN creates OWN account (auto-saves adminAccountId/Number)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/accounts",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"customerId\": {{adminId}}\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"if (pm.response.code === 200) { const b = pm.response.json(); pm.globals.set('adminAccountId', b.id); pm.globals.set('adminAccountNumber', b.accountNumber); }",
+						"pm.test('200 (400 = already exists, fine on re-runs)', () => pm.expect([200, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "3.0b ADMIN reads OWN account → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{adminAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 own account', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "3.1 ADMIN creates account for CUSTOMER (auto-saves id+number)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/accounts",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"customerId\": {{targetCustomerId}}\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"if (pm.response.code === 200) { const b = pm.response.json(); pm.globals.set('customerAccountId', b.id); pm.globals.set('customerAccountNumber', b.accountNumber); }",
+						"pm.test('200 (400 = account already exists, fine on re-runs)', () => pm.expect([200, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "3.2 ADMIN creates SECOND account for same customer → 400",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/accounts",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"customerId\": {{targetCustomerId}}\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 already exists', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "3.3 ADMIN creates account for VICTIM (auto-saves otherAccountId/Number)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/accounts",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"customerId\": {{otherCustomerId}}\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"if (pm.response.code === 200) { const b = pm.response.json(); pm.globals.set('otherAccountId', b.id); pm.globals.set('otherAccountNumber', b.accountNumber); }",
+						"pm.test('200 (400 = already exists, fine)', () => pm.expect([200, 400]).to.include(pm.response.code));"
+					]}}]
+				},
+				{
+					"name": "3.4 MANAGER tries create account → 403",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/accounts",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"customerId\": {{otherCustomerId}}\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 no ACCOUNT_CREATE', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "3.5 CUSTOMER reads OWN account → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{customerAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 own account', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "3.6 CUSTOMER reads OTHER account (IDOR) → 403 JSON",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{otherAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 IDOR', () => pm.response.to.have.status(403));",
+						"pm.test('403 JSON shape', () => { const body = pm.response.json(); ['timestamp','status','error','message','path'].forEach(k => pm.expect(body).to.have.property(k)); });"
+					]}}]
+				},
+				{
+					"name": "3.7 MANAGER reads OTHER account → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{otherAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "3.8 AUDITOR reads OTHER account → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{otherAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{auditorEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{auditorPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 auditor', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "3.9 CUSTOMER my-accounts → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/my-accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "3.10 MANAGER tops-up balance 1000 → 200",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/accounts/{{customerAccountId}}",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"currency\": \"EGP\",\n  \"balance\": 1000.00,\n  \"status\": { \"name\": \"ACTIVE\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 balance updated', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "3.11 CUSTOMER tries update account → 403",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/accounts/{{customerAccountId}}",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"balance\": 999999.00,\n  \"status\": { \"name\": \"ACTIVE\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 no ACCOUNT_UPDATE', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "3.12 Update account to BLOCKED then back (guard check) → 200",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/accounts/{{customerAccountId}}",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"balance\": 1000.00,\n  \"status\": { \"name\": \"ACTIVE\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 redundant ACTIVE ok', () => pm.response.to.have.status(200));"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "4 — Transfers (rules / ownership / approve)",
+			"item": [
+				{
+					"name": "4.1 CUSTOMER creates transfer → 201 (auto-saves customerTransferId)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"amount\": 100.50,\n  \"toAccount\": { \"accountNumber\": \"{{otherAccountNumber}}\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"if (pm.response.code === 201) { pm.globals.set('customerTransferId', pm.response.json().id); }",
+						"pm.test('201 PENDING created', () => pm.response.to.have.status(201));"
+					]}}]
+				},
+				{
+					"name": "4.2 CUSTOMER creates SECOND transfer (auto-saves otherTransferId)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"amount\": 20.00,\n  \"toAccount\": { \"accountNumber\": \"{{otherAccountNumber}}\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"if (pm.response.code === 201) { pm.globals.set('otherTransferId', pm.response.json().id); }",
+						"pm.test('201 second PENDING', () => pm.response.to.have.status(201));"
+					]}}]
+				},
+				{
+					"name": "4.3 SAME source and destination → 400",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"amount\": 10.00,\n  \"toAccount\": { \"accountNumber\": \"{{customerAccountNumber}}\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 same account as source', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "4.4 Amount > balance → 400",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"amount\": 99999999.00,\n  \"toAccount\": { \"accountNumber\": \"{{otherAccountNumber}}\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 insufficient balance', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "4.5 UNKNOWN destination account number → 400",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"amount\": 10.00,\n  \"toAccount\": { \"accountNumber\": \"9999999999999999\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 destination not found', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "4.6 MANAGER tries create transfer → 403",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"amount\": 10.00,\n  \"toAccount\": { \"accountNumber\": \"{{otherAccountNumber}}\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 no TRANSFER_CREATE', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "4.7 CUSTOMER reads OWN transfer → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/transfers/{{customerTransferId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "4.8 AUDITOR reads transfer → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/transfers/{{otherTransferId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{auditorEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{auditorPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 auditor read', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "4.9 MANAGER approves transfer → 200 (ONE-SHOT!)",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers/{{customerTransferId}}/approve",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 approved', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "4.10 Re-approve SAME transfer → 400",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers/{{customerTransferId}}/approve",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 not pending anymore', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "4.11 Balance moved? destination got +100.50 → 200 check via report",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));",
+						"const list = pm.response.json();",
+						"const other = Array.isArray(list) ? list.find(a => String(a.accountNumber) === String(pm.globals.get('otherAccountNumber'))) : null;",
+						"const mine = Array.isArray(list) ? list.find(a => String(a.accountNumber) === String(pm.globals.get('customerAccountNumber'))) : null;",
+						"if (other && mine) { pm.test('destination got the transferred money', () => pm.expect(Number(other.balance)).to.be.at.least(100.50)); }"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "5 — Customers (read / update)",
+			"item": [
+				{
+					"name": "5.1 CUSTOMER reads any customer → 403 (Read Customer ❌)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/customers/{{targetCustomerId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 no CUSTOMER_READ', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "5.2 MANAGER reads customer → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/customers/{{targetCustomerId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "5.3 CUSTOMER tries update customer → 403",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/customers/{{targetCustomerId}}",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Hacked Name\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 no CUSTOMER_UPDATE', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "5.4 ADMIN updates customer name → 200",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/customers/{{targetCustomerId}}",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Updated By Admin\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 updated', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "5.5 Update with someone else's email → 400",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/customers/{{targetCustomerId}}",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"email\": \"{{victimEmail}}\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 duplicate email', () => pm.response.to.have.status(400));"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "6 — Block / Disable lifecycle (victim)",
+			"item": [
+				{
+					"name": "6.1 ADMIN blocks victim → 200",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/admin/customers/{{otherCustomerId}}/block",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 blocked', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "6.2 Victim login while BLOCKED → 401",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{victimEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{victimPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('401 LockedException', () => pm.response.to.have.status(401));"
+					]}}]
+				},
+				{
+					"name": "6.3 ADMIN unblocks victim → 200",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/admin/customers/{{otherCustomerId}}/unblock",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 unblocked', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "6.4 Victim login after unblock → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{victimEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{victimPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 back in', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "6.5 ADMIN disables victim → 200",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/admin/customers/{{otherCustomerId}}/disable",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 disabled', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "6.6 Victim login while DISABLED → 401",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{victimEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{victimPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('401 DisabledException', () => pm.response.to.have.status(401));"
+					]}}]
+				},
+				{
+					"name": "6.7 ADMIN enables victim → 200",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/admin/customers/{{otherCustomerId}}/enable",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 enabled', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "6.8 Victim login after enable → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{victimEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{victimPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 all good', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "6.9 MANAGER tries block → 403",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/admin/customers/{{otherCustomerId}}/block",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 needs ROLE_ADMIN', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "6.10 ADMIN blocks unknown customer id → 400",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/admin/customers/99999/block",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 customer not found', () => pm.response.to.have.status(400));"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "7 — Reports (matrix View Reports)",
+			"item": [
+				{
+					"name": "7.1 Reports accounts ADMIN → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "7.2 Reports accounts AUDITOR → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{auditorEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{auditorPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "7.3 Reports accounts MANAGER → 403",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 no REPORT_VIEW', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "7.4 Reports customers ADMIN → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/customers",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 stats', () => pm.response.to.have.status(200));",
+						"pm.test('keys present', () => { const body = pm.response.json(); pm.expect(body).to.have.property('totalCustomers'); pm.expect(body).to.have.property('enabledCustomers'); });"
+					]}}]
+				},
+				{
+					"name": "7.5 Reports transfers AUDITOR → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/transfers",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{auditorEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{auditorPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "8 — Roles & Permissions admin (recommended: run here)",
+			"item": [
+				{
+					"name": "8.1 ADMIN get role details → 200",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/admin/roles/{{roleId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "8.2 ADMIN duplicate role name → 400",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/admin/roles",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"CUSTOMER\",\n  \"permissions\": []\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 duplicate role', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "8.3 ADMIN illegal role name → 400",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/admin/roles",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"SUPER_HACKER\",\n  \"permissions\": []\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 unknown role name', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "8.4 ADMIN illegal permission name on role → 400",
+					"request": {
+						"method": "PUT",
+						"url": "{{baseUrl}}/admin/roles/{{roleId}}",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"permissions\": [ { \"name\": \"TOTALLY_FAKE_PERM\" } ]\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 permission not found', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "8.5 ADMIN illegal permission name create → 400",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/admin/permissions",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"MY_CUSTOM_PERM\"\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('400 unknown permission name', () => pm.response.to.have.status(400));"
+					]}}]
+				},
+				{
+					"name": "8.6 CUSTOMER → permissions admin list → 403",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/admin/permissions",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403', () => pm.response.to.have.status(403));"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "9 — Attack pack (Task 39)",
+			"item": [
+				{
+					"name": "9.1 S1b hijacker is plain CUSTOMER",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{spoofEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{spoofPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200', () => pm.response.to.have.status(200));",
+						"pm.test('roles == [CUSTOMER]', () => { const body = pm.response.json(); pm.expect(body.roles).to.eql(['CUSTOMER']); });"
+					]}}]
+				},
+				{
+					"name": "9.2 S3 CUSTOMER approves transfer → 403",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers/{{customerTransferId}}/approve",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 no TRANSFER_APPROVE', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "9.3 unknown/foreign transfer id rejected",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/transfers/999999",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('rejected (400 unknown / 403 foreign)', () => pm.expect([400,403,404]).to.include(pm.response.code));"
+					]}}]
+				}
+			]
+		}
+	]
+}

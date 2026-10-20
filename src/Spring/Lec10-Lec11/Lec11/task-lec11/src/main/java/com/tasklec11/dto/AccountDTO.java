@@ -1,0 +1,26 @@
+package com.tasklec11.dto;
+
+import com.tasklec11.model.Roles;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class AccountDTO {
+
+
+    private Long id;
+
+    private String email;
+
+    private String password;
+
+    private List<RolesDTO> roles;
+}

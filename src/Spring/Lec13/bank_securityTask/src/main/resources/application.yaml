@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: bank_securityTask
+
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@//localhost:1521/orclpdb
+    username: BANK_SECURITY
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  web:
+    error:
+      # Boot 4.1: moved from server.error.include-message to spring.web.error.include-message
+      include-message: always
+
+server:
+  port: 8085

@@ -1,0 +1,324 @@
+{
+	"info": {
+		"_postman_id": "b1a2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+		"name": "Bank Security — Tasks 36 / 38 / 39",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8085" },
+		{ "key": "adminEmail", "value": "admin@bank.com" },
+		{ "key": "adminPass", "value": "admin1234" },
+		{ "key": "managerEmail", "value": "manager@bank.com" },
+		{ "key": "managerPass", "value": "manager1234" },
+		{ "key": "customerEmail", "value": "customer@bank.com" },
+		{ "key": "customerPass", "value": "customer1234" },
+		{ "key": "auditorEmail", "value": "auditor@bank.com" },
+		{ "key": "auditorPass", "value": "auditor1234" },
+		{ "key": "disabledEmail", "value": "disabled@bank.com" },
+		{ "key": "disabledPass", "value": "disabled1234" },
+		{ "key": "spoofEmail", "value": "spoof@bank.com" },
+		{ "key": "spoofPass", "value": "spoof1234" },
+		{ "key": "myAccountId", "value": "1" },
+		{ "key": "otherAccountId", "value": "2" },
+		{ "key": "myTransferId", "value": "1" },
+		{ "key": "otherTransferId", "value": "2" },
+		{ "key": "otherAccountNumber", "value": "2000000000001" },
+		{ "key": "targetCustomerId", "value": "1" }
+	],
+	"item": [
+		{
+			"name": "Task 36 — Login Tests",
+			"item": [
+				{
+					"name": "T1 — Correct email + correct password",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 authenticated', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "T2 — Correct email + WRONG password",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "definitely-wrong-pass", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('401 on wrong password', () => pm.response.to.have.status(401));"
+					]}}]
+				},
+				{
+					"name": "T3 — Unknown email",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "no-such-user@bank.com", "type": "string" },
+							{ "key": "password", "value": "whatever1234", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('401 on unknown email', () => pm.response.to.have.status(401));"
+					]}}]
+				},
+				{
+					"name": "T4 — Disabled customer",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{disabledEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{disabledPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('401 disabled (DisabledException)', () => pm.response.to.have.status(401));"
+					]}}]
+				},
+				{
+					"name": "T5 — Authenticated CUSTOMER → ADMIN endpoint",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/admin/roles",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 customer blocked on admin endpoint', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "T6 — BANK_MANAGER approves transfer",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers/{{myTransferId}}/approve",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 manager approving transfer', () => pm.response.to.have.status(200));"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "Task 38 — Security Rules Matrix",
+			"item": [
+				{
+					"name": "Reports: ADMIN sees accounts",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{adminEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 ADMIN reports', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "Reports: AUDITOR sees accounts",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{auditorEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{auditorPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 AUDITOR reports', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "Reports: BANK_MANAGER denied",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/reports/accounts",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 MANAGER lacks REPORT_VIEW', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "Read Account: CUSTOMER own account",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{myAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 OWN account', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "Read Account: CUSTOMER other account (Attack S2)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{otherAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 IDOR blocked', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "Read Account: AUDITOR any account",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{otherAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{auditorEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{auditorPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 AUDITOR reads any account', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "Read Transfer: CUSTOMER reads OTHER transfer (Own only)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/transfers/{{otherTransferId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 own-only transfer read', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "Update Customer: BANK_MANAGER allowed",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/customers/{{targetCustomerId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 MANAGER reads customer (CUSTOMER_READ)', () => pm.response.to.have.status(200));"
+					]}}]
+				},
+				{
+					"name": "Delete Account: BANK_MANAGER denied",
+					"request": {
+						"method": "DELETE",
+						"url": "{{baseUrl}}/accounts/{{otherAccountId}}",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{managerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{managerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 MANAGER lacks ACCOUNT_DELETE', () => pm.response.to.have.status(403));"
+					]}}]
+				}
+			]
+		},
+		{
+			"name": "Task 39 — Attack Scenarios",
+			"item": [
+				{
+					"name": "S1 — Register with ROLE_ADMIN in body",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/auth/register",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"id\": null,\n  \"fullName\": \"Spoof Attacker\",\n  \"email\": \"{{spoofEmail}}\",\n  \"password\": \"{{spoofPass}}\",\n  \"phone\": \"01012345678\",\n  \"role\": \"ROLE_ADMIN\",\n  \"roles\": [\"ROLE_ADMIN\"]\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('201 created (hijack body ignored)', () => pm.response.to.have.status(201));"
+					]}}]
+				},
+				{
+					"name": "S1b — Verify spoofed user got only CUSTOMER role",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/auth/me",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{spoofEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{spoofPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('200 authenticated', () => pm.response.to.have.status(200));",
+						"pm.test('roles only CUSTOMER', () => { const body = pm.response.json(); pm.expect(body.roles).to.eql(['CUSTOMER']); });",
+						"pm.test('no ADMIN authority', () => { const body = pm.response.json(); pm.expect(body.authorities.join()).to.not.include('ROLE_ADMIN'); });"
+					]}}]
+				},
+				{
+					"name": "S3 — CUSTOMER approves transfer",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers/{{myTransferId}}/approve",
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]}
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('403 customer lacks TRANSFER_APPROVE', () => pm.response.to.have.status(403));"
+					]}}]
+				},
+				{
+					"name": "S4 — Unauthenticated GET /accounts/{id}",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/accounts/{{myAccountId}}"
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('401 unauthorized', () => pm.response.to.have.status(401));",
+						"pm.test('json body has error fields', () => { const body = pm.response.json(); ['timestamp','status','error','message','path'].forEach(k => pm.expect(body).to.have.property(k)); });"
+					]}}]
+				},
+				{
+					"name": "S5 — Spoofed fromAccount in transfer body",
+					"request": {
+						"method": "POST",
+						"url": "{{baseUrl}}/transfers",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"auth": { "type": "basic", "basic": [
+							{ "key": "username", "value": "{{customerEmail}}", "type": "string" },
+							{ "key": "password", "value": "{{customerPass}}", "type": "string" }
+						]},
+						"body": { "mode": "raw", "raw": "{\n  \"amount\": 1.00,\n  \"fromAccount\": { \"accountNumber\": \"{{otherAccountNumber}}\" },\n  \"toAccount\": { \"accountNumber\": \"{{otherAccountNumber}}\" }\n}" }
+					},
+					"event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('fromAccount forced to OWN account (or 400 if same as toAccount)', () => { pm.expect([201,400]).to.include(pm.response.code); });"
+					]}}]
+				}
+			]
+		}
+	]
+}

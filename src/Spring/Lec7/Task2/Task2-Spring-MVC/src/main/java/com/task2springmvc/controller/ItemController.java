@@ -3,14 +3,14 @@ package com.task2springmvc.controller;
 import com.task2springmvc.moedel.Item;
 import com.task2springmvc.service.ItemService;
 import jakarta.transaction.SystemException;
-import jakarta.validation.Valid;
+import org.eclipse.tags.shaded.org.apache.xpath.operations.Mod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/item")
@@ -31,10 +31,7 @@ public class ItemController {
     }
 
     @PostMapping("/save")
-    public String saveItem(@Valid @ModelAttribute("item") Item item, BindingResult bindingResult) throws SystemException {
-        if(bindingResult.hasErrors()){
-            return "item-form";
-        }
+    public String saveItem(@ModelAttribute("item") Item item) throws SystemException {
         itemService.saveItem(item);
         return "redirect:/item/list";
     }
@@ -67,10 +64,7 @@ public class ItemController {
     }
 
     @PutMapping("/update")
-    public String updateItem(@Valid @ModelAttribute("item") Item item, BindingResult bindingResult) throws SystemException {
-        if(bindingResult.hasErrors()){
-            return "item-update-form";
-        }
+    public String updateItem(@ModelAttribute("item") Item item) throws SystemException {
         itemService.updateItem(item);
         return "redirect:/item/list";
     }
