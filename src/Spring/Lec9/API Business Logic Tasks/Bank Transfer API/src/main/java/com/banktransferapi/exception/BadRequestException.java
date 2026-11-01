@@ -1,4 +1,4 @@
-package com.productdiscountapi.exception;
+package com.banktransferapi.exception;
 
 public class BadRequestException extends RuntimeException {
 

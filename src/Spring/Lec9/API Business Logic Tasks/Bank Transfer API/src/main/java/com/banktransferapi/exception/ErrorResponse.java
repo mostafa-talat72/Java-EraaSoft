@@ -1,4 +1,4 @@
-package com.productdiscountapi.exception;
+package com.banktransferapi.exception;
 
 // Uniform JSON error body for every handled failure:
 // { "code": 404, "message": "Product with id 9 not found" }

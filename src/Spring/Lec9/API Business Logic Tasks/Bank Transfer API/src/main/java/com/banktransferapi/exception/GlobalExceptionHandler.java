@@ -1,4 +1,4 @@
-package com.productdiscountapi.exception;
+package com.banktransferapi.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

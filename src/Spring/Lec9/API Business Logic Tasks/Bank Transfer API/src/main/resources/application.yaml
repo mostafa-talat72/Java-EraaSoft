@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: Bank Transfer API
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@//localhost:1521/orclpdb
+    username: EWALLET
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+  web:
+    error:
+      include-message: always
+
+# Two-step verification for large transfers (rule 5).
+# The code is generated on the first attempt, logged as a simulated SMS,
+# and must be echoed back in verificationCode within the TTL.
+bank:
+  transfer:
+    verification-threshold: 10000
+    verification-code-ttl-seconds: 300
+
+server:
+  port: 8085
