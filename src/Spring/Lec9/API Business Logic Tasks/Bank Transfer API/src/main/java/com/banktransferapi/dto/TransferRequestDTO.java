@@ -3,7 +3,7 @@ package com.banktransferapi.dto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +32,8 @@ public class TransferRequestDTO {
     @Digits(integer = 17, fraction = 2, message = "Transfer amount must have at most 2 decimal places")
     private BigDecimal amount;
 
-    @Size(max = 10, message = "Verification code cannot exceed 10 characters")
+    // Optional at binding time: required only above the threshold, and that
+    // conditional rule lives in the service, not in Bean Validation.
+    @Pattern(regexp = "\\d{6}", message = "Verification code must be exactly 6 digits")
     private String verificationCode;
 }

@@ -1,0 +1,21 @@
+# Test profile: H2 in memory instead of the Oracle instance, so `mvn test`
+# runs anywhere. The main application.yaml values are overridden here.
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:restaurant;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+restaurant:
+  open-time: "12:00"
+  close-time: "23:00"
+  min-advance-minutes: 30
+  cancel-cutoff-minutes: 60
+  confirm-window-minutes: 15
+  max-active-reservations: 2

@@ -31,8 +31,9 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(readOnly = true)
     @Override
     public List<AccountDTO> getAllAccounts() {
-        // Read-only query: every account in the system.
-        List<Account> accounts = accountRepo.findAll();
+        // Read-only query: every account, ordered by id, with accountType fetched
+        // in the same query (@EntityGraph) so mapping does not trigger N+1 selects.
+        List<Account> accounts = accountRepo.findAllByOrderByIdAsc();
 
         // Same convention as the previous task: an empty list is reported as 404,
         // not as an empty 200 response.

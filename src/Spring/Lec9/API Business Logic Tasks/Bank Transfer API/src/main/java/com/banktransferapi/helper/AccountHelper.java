@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 // Shared account capabilities (lookup / locking / existence checks).
 // It collaborates with repositories only, so services can depend on it
 // without creating a service -> service -> helper cycle.
-// NOTE: not wired into any service yet.
+// Used by both AccountServiceImpl and TransferServiceImpl.
 @Component
 @RequiredArgsConstructor
 public class AccountHelper {

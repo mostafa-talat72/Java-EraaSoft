@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: Restaurant Table Reservation API
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    # Credentials come from the environment; the defaults keep local runs working.
+    # Never commit real production secrets here.
+    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/orclpdb}
+    username: ${DB_USERNAME:EWALLET}
+    password: ${DB_PASSWORD:123456}
+
+  jpa:
+    hibernate:
+      # update, not create: the EWALLET schema is shared with the other lecture
+      # tasks, so every run must not drop and rebuild the RT_ tables.
+      ddl-auto: update
+    open-in-view: false
+    show-sql: true
+
+  web:
+    error:
+      include-message: always
+
+server:
+  port: 8085
+
+# Policy values for the reservation rules. They stay out of the code so the
+# restaurant can change its hours without a rebuild.
+restaurant:
+  open-time: "12:00"
+  close-time: "23:00"
+  min-advance-minutes: 30      # rule 5
+  cancel-cutoff-minutes: 60    # rule 6
+  confirm-window-minutes: 15   # rule 7
+  max-active-reservations: 2   # rule 4

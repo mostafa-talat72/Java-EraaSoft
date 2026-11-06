@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: Library Borrowing API
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    # Credentials come from the environment; the defaults keep local runs working.
+    # Never commit real production secrets here.
+    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/orclpdb}
+    username: ${DB_USERNAME:EWALLET}
+    password: ${DB_PASSWORD:123456}
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+  web:
+    error:
+      include-message: always
+
+# Rules 5 and 6: every day past the due date costs this amount.
+# The value is a policy decision, so it lives outside the code.
+library:
+  fine-per-day: 5.00
+
+server:
+  port: 8086

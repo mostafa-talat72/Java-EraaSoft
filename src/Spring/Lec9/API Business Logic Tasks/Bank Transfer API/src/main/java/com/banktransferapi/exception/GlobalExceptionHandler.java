@@ -1,5 +1,6 @@
 package com.banktransferapi.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .reduce((first, second) -> first + "; " + second)
+                .orElse("Validation failed");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(400, message));
+    }
+
+    // @Valid on a service method parameter (@Validated bean) -> same 400 shape,
+    // so a direct service call is rejected exactly like an HTTP call.
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        String message = ex.getConstraintViolations().stream()
+                .map(violation -> {
+                    String path = violation.getPropertyPath().toString();
+                    int lastDot = path.lastIndexOf('.');
+                    String field = lastDot < 0 ? path : path.substring(lastDot + 1);
+                    return field + ": " + violation.getMessage();
+                })
                 .reduce((first, second) -> first + "; " + second)
                 .orElse("Validation failed");
 

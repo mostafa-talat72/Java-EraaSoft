@@ -1,0 +1,17 @@
+# Test profile: H2 in memory instead of the Oracle instance, so `mvn test`
+# runs anywhere. The main application.yaml values are overridden here.
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:banktransfer;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+bank:
+  transfer:
+    verification-threshold: 10000

@@ -6,6 +6,7 @@ import com.banktransferapi.exception.BadRequestException;
 import com.banktransferapi.exception.NotFoundException;
 import com.banktransferapi.mapper.AccountTypeMapper;
 import com.banktransferapi.model.AccountType;
+import com.banktransferapi.repo.AccountRepo;
 import com.banktransferapi.repo.AccountTypeRepo;
 import com.banktransferapi.service.AccountTypeService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,10 @@ public class AccountTypeServiceImpl implements AccountTypeService {
 
     private final AccountTypeRepo accountTypeRepo;
     private final AccountTypeMapper accountTypeMapper;
+
+    // Needed only to refuse deleting a type that accounts still reference;
+    // the repository (not AccountService) keeps the dependency one-way.
+    private final AccountRepo accountRepo;
 
     @Transactional(readOnly = true)
     @Override
@@ -89,6 +94,13 @@ public class AccountTypeServiceImpl implements AccountTypeService {
     public void deleteAccountType(Long id) {
         // 404 when the account type does not exist.
         AccountType accountType = findAccountTypeOrThrow(id);
+
+        // Refuse the delete while accounts still point at this type, otherwise the
+        // FK constraint fails and the client would get a 500 instead of a 400.
+        if(accountRepo.existsByAccountTypeId(id)){
+            throw new BadRequestException(
+                    "Account type with id " + id + " is used by existing accounts and cannot be deleted");
+        }
 
         accountTypeRepo.delete(accountType);
     }

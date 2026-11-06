@@ -3,9 +3,11 @@ spring:
     name: Bank Transfer API
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@//localhost:1521/orclpdb
-    username: EWALLET
-    password: 123456
+    # Credentials come from the environment; the defaults keep local runs working.
+    # Never commit real production secrets here.
+    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/orclpdb}
+    username: ${DB_USERNAME:EWALLET}
+    password: ${DB_PASSWORD:123456}
 
   jpa:
     hibernate:
@@ -18,11 +20,10 @@ spring:
 
 # Two-step verification for large transfers (rule 5).
 # The code is generated on the first attempt, logged as a simulated SMS,
-# and must be echoed back in verificationCode within the TTL.
+# and must be echoed back in verificationCode.
 bank:
   transfer:
     verification-threshold: 10000
-    verification-code-ttl-seconds: 300
 
 server:
   port: 8085
